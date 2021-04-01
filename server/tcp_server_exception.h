@@ -17,6 +17,12 @@ namespace TcpServerException // можно будет добавить к мет
         GettingHostnameFailed(const std::string& hostnameError) : std::runtime_error(hostnameError) {}
     };
 
+    class GettingHostnameDataFailed : public std::runtime_error
+    {
+    public:
+        GettingHostnameDataFailed(const std::string& hostnameDataError) : std::runtime_error(hostnameDataError) {}
+    };
+
     class GettingSocketFailed : public std::runtime_error
     {
     public:
