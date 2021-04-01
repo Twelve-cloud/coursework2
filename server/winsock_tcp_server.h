@@ -155,8 +155,15 @@ public:
         void sendData(const std::string& sendingStr)
         {
             int size = sendingStr.size();
-            send(socket, (char*)&size, sizeof(int), 0);
-            send(socket, sendingStr.c_str(), sendingStr.size(), 0);
+            if (send(socket, (char*)&size, sizeof(int), 0) == -1)
+            {
+                throw TcpServerException::SendDataFailed("sending data failed");
+            }
+
+            if (send(socket, sendingStr.c_str(), sendingStr.size(), 0) == -1)
+            {
+                throw TcpServerException::SendDataFailed("sending data failed");
+            }
         }
 
         void recvData(std::string& data)
@@ -164,13 +171,13 @@ public:
             int size;
             if (recv(socket, (char*)&size, sizeof(int), 0) == -1)
             {
-                throw TcpServerException::RecvDataFailed("recieved data failed");
+                throw TcpServerException::RecvDataFailed("receiving data failed");
             }
 
             char* strData = new char[size];
             if (recv(socket, strData, size, 0) == -1)
             {
-                throw TcpServerException::RecvDataFailed("recieved data failed");
+                throw TcpServerException::RecvDataFailed("receiving data failed");
             }
 
             data = strData;
