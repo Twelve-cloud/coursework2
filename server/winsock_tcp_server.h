@@ -119,7 +119,7 @@ public:
     {
         for (const auto& client : clientSockets)
         {
-            std::cout << "Client #1: " << client.first << std::endl;
+            std::cout << "Client: " << client.first << std::endl;
         }
     }
     void start()
@@ -133,7 +133,7 @@ public:
 
             SOCKET newClientSocket = accept(serverSocket, (SOCKADDR*)&clientSocketData, &sizeClientSocketData);
 
-            Client clientSocket(newClientSocket);
+            Client clientSocket(*this, newClientSocket, clientSocketData);
             clientSockets.insert(std::make_pair(inet_ntoa(clientSocketData.sin_addr), clientSocket)); // inet_ntoa преобразует in_addr к строковому виду
             ++clientsCounter;
 
@@ -146,9 +146,11 @@ public:
     class Client
     {
     private:
-        SOCKET socket;
+        TcpServer& server;
+        SOCKET socket = NULL;
+        SOCKADDR_IN socketData;
     public:
-        Client(SOCKET _socket) : socket(_socket) {}
+        Client(TcpServer& _server, SOCKET _socket, SOCKADDR_IN _socketData) : server(_server), socket(_socket), socketData(_socketData) {}
 
         void sendData(const std::string& sendingStr)
         {
@@ -178,6 +180,17 @@ public:
             }
 
             data = strData;
+        }
+        void close()
+        {
+            if (socket != NULL)
+            {
+                closesocket(socket);
+                server.clientSockets.erase(std::find_if(server.clientSockets.begin(), server.clientSockets.end(), [&](std::pair<std::string, Client> element)
+                                                                                                                  {
+                                                                                                                    return element.first == inet_ntoa(socketData.sin_addr);
+                                                                                                                  }));
+            }
         }
     };
 private:

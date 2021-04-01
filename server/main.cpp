@@ -8,6 +8,8 @@ void clientFunc(void* clientSocket)
     std::string data;
     socket.recvData(data);
     std::cout << data;
+
+    socket.close();
 }
 
 void startServer(void* s)
@@ -22,7 +24,7 @@ int main()
 
     _beginthread(startServer, 0, (void*)&server);
 
-
+    system("pause");
 
     server.getClients();
 
