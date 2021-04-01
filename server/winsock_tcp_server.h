@@ -3,6 +3,7 @@
 
 #include "tcp_server_exception.h"
 #include "winsock.h"
+#include <functional>
 #include <stdexcept>
 #include <iostream>
 #include <iomanip>
@@ -11,10 +12,22 @@
 #include <cstddef>
 #include <memory>
 #include <string>
+#include <map>
 
 class TcpServer
 {
 private:
+    void winsockInitialization()
+    {
+        if (WSAStartup(MAKEWORD(2, 2), &initializationParams) != 0) // version 2.2
+        {
+            throw TcpServerException::WinSockInitializationFailed("WinSock initialization failed");
+        }
+        else
+        {
+            std::cout << "Winsock initialization succeeded" << std::endl;
+        }
+    }
     std::string getHostname() const
     {
         char _hostname[1024];
@@ -34,37 +47,27 @@ private:
         {
             throw TcpServerException::GettingHostnameDataFailed("Getting hostname data failed");
         }
+
         return hstData;
     }
-    SOCKET getSocket()
+    void createSocket()
     {
-        _socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); // семейство адресов IPv4, спецификация сокета - передача надеждных потоков байтов для протокола TCP, протокол TCP.
+        serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); // семейство адресов IPv4, спецификация сокета - передача надеждных потоков байтов для протокола TCP, протокол TCP.
 
-        if (_socket == INVALID_SOCKET)
+        if (serverSocket == INVALID_SOCKET)
         {
             throw TcpServerException::GettingSocketFailed("Getting the socket failed");
         }
     }
-    void winsockInitialization()
-    {
-        if (WSAStartup(version, &initializationParams) != 0)
-        {
-            throw TcpServerException::WinSockInitializationFailed("WinSock initialization failed");
-        }
-        else
-        {
-            std::cout << "Winsock initialization succeeded" << std::endl;
-        }
-    }
-    void bindSocket()
+    void bindSocket(const std::string& address, const std::size_t& port)
     {
         socketData.sin_family = AF_INET; // указываем семейство адресов, AF_INET - IPv4
-        socketData.sin_addr.s_addr  = htonl(INADDR_ANY); // указываем адрес хоста, INADDR_ANY - адрес локального хоста
-        socketData.sin_port = htons(3360); // указываем порт
+        socketData.sin_addr.s_addr  = inet_addr(address.c_str()); // указываем адрес хоста, INADDR_ANY - адрес локального хоста, inet_addr - преобразует c-style строку к сетевому формату
+        socketData.sin_port = htons(port); // указываем порт
         // функции htonl(), htons() - преобразуют номер хоста к сетевому формату, причина этому 2 порядка хранения байтов little-endian & big-endian
         // функции ntonl(), ntons() - преобразуют сетевой формат чисел к конерктному номеру хоста
 
-        if (bind(_socket, (SOCKADDR*)&socketData, sizeof(socketData)) != 0) // связываем сокет с хостом (socketData содержит данные хоста)
+        if (bind(serverSocket, (SOCKADDR*)&socketData, sizeof(socketData)) != 0) // связываем сокет с хостом (socketData содержит данные хоста)
         {
             throw TcpServerException::BindSocketFailed("Bind socket failed");
         }
@@ -73,27 +76,22 @@ private:
     }
 
 public:
-    TcpServer()
+    TcpServer(void (*clientFunc)(void*), const std::string& address, const std::size_t& port) : clientsCounter(0), clientFunction(clientFunc)
     {
         winsockInitialization();
         hostname = getHostname();
         hostData = getHostData();
-        _socket = getSocket();
-        bindSocket();
-        listen(_socket, INT_MAX);
+        createSocket();
+        bindSocket(address, port);
     }
 
     ~TcpServer()
     {
-        closesocket(_socket);
+        closesocket(serverSocket);
         WSACleanup();
     }
 
-    void stopServer()
-    {
-        closesocket(_socket);
-        WSACleanup();
-    }
+
     void showWinsockInfo()
     {
         std::cout << std::setw(30) << "WS Version" << std::setw(30) << initializationParams.wVersion << std::endl;
@@ -119,14 +117,76 @@ public:
             std::cout << std::setw(29) << "Address #" << i + 1 << std::setw(30) << inet_ntoa(addr) << std::endl; // inet_ntoa - преобразует сетевой формат к строковому виду
         }
     }
+    void getClients()
+    {
+        for (const auto& client : clientSockets)
+        {
+            std::cout << "Client #1: " << client.first << std::endl;
+        }
+    }
+    void start()
+    {
+        listen(serverSocket, INT_MAX);
+
+        while(true)
+        {
+            SOCKADDR_IN clientSocketData;
+            int sizeClientSocketData = sizeof(clientSocketData);
+
+            SOCKET newClientSocket = accept(serverSocket, (SOCKADDR*)&clientSocketData, &sizeClientSocketData);
+
+            Client clientSocket(newClientSocket, clientSocketData);
+            clientSockets.insert(std::make_pair(inet_ntoa(clientSocketData.sin_addr), clientSocket));
+            ++clientsCounter;
+
+            _beginthread(clientFunction, 0, (void*)&clientSocket);
+
+        }
+    }
+
+
+    class Client
+    {
+    private:
+        SOCKET socket;
+        SOCKADDR_IN clientData;
+    public:
+        Client(SOCKET _socket, SOCKADDR_IN _clientData) : socket(_socket), clientData(_clientData) {}
+
+        void sendData(const std::string& sendingStr)
+        {
+            int size = sendingStr.size();
+            send(socket, (char*)&size, sizeof(int), 0);
+            send(socket, sendingStr.c_str(), sendingStr.size(), 0);
+        }
+
+        void recvData(std::string& data)
+        {
+            int size;
+            recv(socket, (char*)&size, sizeof(int), 0);
+            char* strData = new char[size];
+            recv(socket, strData, size, 0);
+            data = strData;
+        }
+
+        void showClientData()
+        {
+            clientData;
+        }
+    };
 
 private:
-    const WORD version = MAKEWORD(2, 2);
     WSADATA initializationParams;
+
     std::string hostname;
     std::unique_ptr<HOSTENT> hostData;
-    SOCKET _socket;
+
+    SOCKET serverSocket;
     SOCKADDR_IN socketData;
+
+    std::map<std::string, Client> clientSockets;
+    std::size_t clientsCounter;
+    void (*clientFunction)(void*);
 };
 
 #endif // WINSOCK_TCP_SERVER_H
