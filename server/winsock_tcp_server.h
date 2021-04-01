@@ -2,9 +2,7 @@
 #define WINSOCK_TCP_SERVER_H
 
 #include "tcp_server_exception.h"
-#include "winsock.h"
 #include <functional>
-#include <stdexcept>
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
@@ -165,7 +163,6 @@ public:
                 throw TcpServerException::SendDataFailed("sending data failed");
             }
         }
-
         void recvData(std::string& data)
         {
             int size;
