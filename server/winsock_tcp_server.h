@@ -135,8 +135,8 @@ public:
 
             SOCKET newClientSocket = accept(serverSocket, (SOCKADDR*)&clientSocketData, &sizeClientSocketData);
 
-            Client clientSocket(newClientSocket, clientSocketData);
-            clientSockets.insert(std::make_pair(inet_ntoa(clientSocketData.sin_addr), clientSocket));
+            Client clientSocket(newClientSocket);
+            clientSockets.insert(std::make_pair(inet_ntoa(clientSocketData.sin_addr), clientSocket)); // inet_ntoa преобразует in_addr к строковому виду
             ++clientsCounter;
 
             _beginthread(clientFunction, 0, (void*)&clientSocket);
@@ -149,9 +149,8 @@ public:
     {
     private:
         SOCKET socket;
-        SOCKADDR_IN clientData;
     public:
-        Client(SOCKET _socket, SOCKADDR_IN _clientData) : socket(_socket), clientData(_clientData) {}
+        Client(SOCKET _socket) : socket(_socket) {}
 
         void sendData(const std::string& sendingStr)
         {
@@ -163,18 +162,20 @@ public:
         void recvData(std::string& data)
         {
             int size;
-            recv(socket, (char*)&size, sizeof(int), 0);
+            if (recv(socket, (char*)&size, sizeof(int), 0) == -1)
+            {
+                throw TcpServerException::RecvDataFailed("recieved data failed");
+            }
+
             char* strData = new char[size];
-            recv(socket, strData, size, 0);
+            if (recv(socket, strData, size, 0) == -1)
+            {
+                throw TcpServerException::RecvDataFailed("recieved data failed");
+            }
+
             data = strData;
         }
-
-        void showClientData()
-        {
-            clientData;
-        }
     };
-
 private:
     WSADATA initializationParams;
 
@@ -184,7 +185,7 @@ private:
     SOCKET serverSocket;
     SOCKADDR_IN socketData;
 
-    std::map<std::string, Client> clientSockets;
+    std::map<std::string, Client> clientSockets; // хранит по IP сокеты клиентов
     std::size_t clientsCounter;
     void (*clientFunction)(void*);
 };

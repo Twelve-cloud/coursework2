@@ -34,6 +34,12 @@ namespace TcpServerException // можно будет добавить к мет
     public:
         BindSocketFailed(const std::string& bindError) : std::runtime_error(bindError) {}
     };
+
+    class RecvDataFailed : public std::runtime_error
+    {
+    public:
+        RecvDataFailed(const std::string& recvError) : std::runtime_error(recvError) {}
+    };
 }
 
 #endif // TCP_SERVER_EXCEPTION_H
