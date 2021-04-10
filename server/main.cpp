@@ -1,3 +1,4 @@
+#include "streamtable.h"
 #include "winsock_tcp_server.h"
 #include <iostream>
 
@@ -19,16 +20,17 @@ void startServer(void* s)
 }
 
 int main()
-{
+{    
     TcpServer server(clientFunc, "127.0.0.1", 3360);
 
-    _beginthread(startServer, 0, (void*)&server);
+    StreamTable serverTable;
 
-    system("pause");
+    serverTable.AddCol(50);
+    serverTable.MakeBorderExt(true);
+    serverTable.SetDelimRow(true, '-');
+    serverTable.SetDelimCol(true, '|');
 
-    server.getClients();
 
-    server.stop();
 
     return 0;
 }

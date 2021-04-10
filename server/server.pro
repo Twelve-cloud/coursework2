@@ -9,5 +9,6 @@ SOURCES += \
         main.cpp
 
 HEADERS += \
+    streamtable.h \
     tcp_server_exception.h \
     winsock_tcp_server.h
