@@ -74,7 +74,7 @@ private:
     }
 
 public:
-    TcpServer(void (*clientFunc)(void*), const std::string& address, const std::size_t& port) : clientsCounter(0), clientFunction(clientFunc)
+    TcpServer(void (*clientFunc)(void*), const std::string& address, const std::size_t& port) : clientFunction(clientFunc)
     {
         winsockInitialization();
         hostname = getHostname();
@@ -134,18 +134,16 @@ public:
             SOCKET newClientSocket = accept(serverSocket, (SOCKADDR*)&clientSocketData, &sizeClientSocketData);
 
             if (isWork == false)
-                break; //////////////////
+                break;
 
             Client clientSocket(*this, newClientSocket, clientSocketData);
             clientSockets.insert(std::make_pair(inet_ntoa(clientSocketData.sin_addr), clientSocket)); // inet_ntoa преобразует in_addr к строковому виду
-            ++clientsCounter;
 
             _beginthread(clientFunction, 0, (void*)&clientSocket);
 
         }
     }
-
-    void stop() ///////////////
+    void stop()
     {
         isWork = false;
 
@@ -206,7 +204,8 @@ public:
                                                         [&](std::pair<std::string, Client> element)
                                                         {
                                                             return element.first == inet_ntoa(socketData.sin_addr);
-                                                        }));
+                                                        })
+                                           );
             }
         }
 
@@ -220,9 +219,9 @@ private:
     SOCKET serverSocket;
     SOCKADDR_IN socketData;
 
-    std::multimap<std::string, Client> clientSockets; // хранит по IP сокеты клиентов
-    std::size_t clientsCounter;
+    std::multimap<std::string, Client> clientSockets; // хранит по IP сокеты клиентов (поменять на map в конце)
     void (*clientFunction)(void*);
+
     bool isWork;
 };
 

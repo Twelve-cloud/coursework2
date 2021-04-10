@@ -16,12 +16,12 @@ void clientFunc(void* clientSocket)
     std::cout << data;
     while (1) {}
     socket.close();
+    // основная функция для работы с еденицей подключения
 }
 
-void startServer(void* s)
+void startServer(void* server)
 {
-    TcpServer* server = (TcpServer*)s;
-    server -> start();
+    reinterpret_cast<TcpServer*>(server) -> start();
 }
 
 int main()
