@@ -8,7 +8,7 @@ void clientFunc(void* clientSocket)
     std::string data;
     socket.recvData(data);
     std::cout << data;
-
+    while (1) {}
     socket.close();
 }
 
@@ -27,6 +27,8 @@ int main()
     system("pause");
 
     server.getClients();
+
+    server.stop();
 
     return 0;
 }

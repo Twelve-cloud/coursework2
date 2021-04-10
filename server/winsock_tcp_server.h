@@ -124,9 +124,10 @@ public:
     }
     void start()
     {
+        isWork = true;
         listen(serverSocket, INT_MAX);
 
-        while(true)
+        while(isWork)
         {
             SOCKADDR_IN clientSocketData;
             int sizeClientSocketData = sizeof(clientSocketData);
@@ -142,6 +143,10 @@ public:
         }
     }
 
+    void stop()
+    {
+        isWork = false;
+    }
 
     class Client
     {
@@ -186,10 +191,12 @@ public:
             if (socket != NULL)
             {
                 closesocket(socket);
-                server.clientSockets.erase(std::find_if(server.clientSockets.begin(), server.clientSockets.end(), [&](std::pair<std::string, Client> element)
-                                                                                                                  {
-                                                                                                                    return element.first == inet_ntoa(socketData.sin_addr);
-                                                                                                                  }));
+                server.clientSockets.erase(std::find_if(server.clientSockets.begin(),
+                                                        server.clientSockets.end(),
+                                                        [&](std::pair<std::string, Client> element)
+                                                        {
+                                                            return element.first == inet_ntoa(socketData.sin_addr);
+                                                        }));
             }
         }
     };
@@ -202,9 +209,10 @@ private:
     SOCKET serverSocket;
     SOCKADDR_IN socketData;
 
-    std::map<std::string, Client> clientSockets; // хранит по IP сокеты клиентов
+    std::multimap<std::string, Client> clientSockets; // хранит по IP сокеты клиентов
     std::size_t clientsCounter;
     void (*clientFunction)(void*);
+    bool isWork;
 };
 
 #endif // WINSOCK_TCP_SERVER_H
