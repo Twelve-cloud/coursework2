@@ -82,7 +82,6 @@ public:
         createSocket();
         bindSocket(address, port);
     }
-
     ~TcpServer()
     {
         closesocket(serverSocket);
@@ -127,12 +126,15 @@ public:
         isWork = true;
         listen(serverSocket, INT_MAX);
 
-        while(isWork)
+        while(true)
         {
             SOCKADDR_IN clientSocketData;
             int sizeClientSocketData = sizeof(clientSocketData);
 
             SOCKET newClientSocket = accept(serverSocket, (SOCKADDR*)&clientSocketData, &sizeClientSocketData);
+
+            if (isWork == false)
+                break; //////////////////
 
             Client clientSocket(*this, newClientSocket, clientSocketData);
             clientSockets.insert(std::make_pair(inet_ntoa(clientSocketData.sin_addr), clientSocket)); // inet_ntoa преобразует in_addr к строковому виду
@@ -143,14 +145,22 @@ public:
         }
     }
 
-    void stop()
+    void stop() ///////////////
     {
         isWork = false;
+
+        for (auto& i : clientSockets)
+        {
+            closesocket(i.second.socket);
+        }
+
+        clientSockets.clear();
     }
 
     class Client
     {
     private:
+        friend class TcpServer;
         TcpServer& server;
         SOCKET socket = NULL;
         SOCKADDR_IN socketData;
@@ -199,6 +209,7 @@ public:
                                                         }));
             }
         }
+
     };
 private:
     WSADATA initializationParams;
