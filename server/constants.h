@@ -39,8 +39,8 @@ namespace Range
 {
     enum Range
     {
-        FIRST = 0,
-        LAST_MAIN = 5
+        FIRST = 1,
+        LAST_MAIN = 6
     };
 }
 

@@ -19,7 +19,7 @@ private:
     {
         if (WSAStartup(MAKEWORD(2, 2), &initializationParams) != 0) // version 2.2
         {
-            throw TcpServerException::WinSockInitializationFailed("WinSock initialization failed");
+            throw TcpServerException::WinSockInitializationFailed("WinSock initialization failed", WSAGetLastError());
         }
         else
         {
@@ -32,7 +32,7 @@ private:
 
         if (gethostname(_hostname, sizeof(_hostname)) != 0)
         {
-            throw TcpServerException::GettingHostnameFailed("Getting the hostname failed");
+            throw TcpServerException::GettingHostnameFailed("Getting the hostname failed", WSAGetLastError());
         }
 
         return std::string(_hostname);
@@ -43,7 +43,7 @@ private:
 
         if (hstData == nullptr)
         {
-            throw TcpServerException::GettingHostnameDataFailed("Getting hostname data failed");
+            throw TcpServerException::GettingHostnameDataFailed("Getting hostname data failed", WSAGetLastError());
         }
 
         return hstData;
@@ -54,7 +54,7 @@ private:
 
         if (serverSocket == INVALID_SOCKET)
         {
-            throw TcpServerException::GettingSocketFailed("Getting the socket failed");
+            throw TcpServerException::GettingSocketFailed("Getting the socket failed", WSAGetLastError());
         }
     }
     void bindSocket(const std::string& address, const std::size_t& port)
@@ -67,7 +67,7 @@ private:
 
         if (bind(serverSocket, (SOCKADDR*)&socketData, sizeof(socketData)) != 0) // связываем сокет с хостом (socketData содержит данные хоста)
         {
-            throw TcpServerException::BindSocketFailed("Bind socket failed");
+            throw TcpServerException::BindSocketFailed("Bind socket failed", WSAGetLastError());
         }
 
         std::cout << "Binded with host: " << hostname << std::endl;
@@ -116,6 +116,11 @@ public:
     }
     void getClients()
     {
+        if (clientSockets.empty())
+        {
+            std::cout << "0 Clients" << std::endl;
+        }
+
         for (const auto& client : clientSockets)
         {
             std::cout << "Client: " << client.first << std::endl;
@@ -170,12 +175,12 @@ public:
             int size = sendingStr.size();
             if (send(socket, (char*)&size, sizeof(int), 0) == -1)
             {
-                throw TcpServerException::SendDataFailed("sending data failed");
+                throw TcpServerException::SendDataFailed("sending data failed", WSAGetLastError());
             }
 
             if (send(socket, sendingStr.c_str(), sendingStr.size(), 0) == -1)
             {
-                throw TcpServerException::SendDataFailed("sending data failed");
+                throw TcpServerException::SendDataFailed("sending data failed", WSAGetLastError());
             }
         }
         void recvData(std::string& data)
@@ -183,13 +188,13 @@ public:
             int size;
             if (recv(socket, (char*)&size, sizeof(int), 0) == -1)
             {
-                throw TcpServerException::RecvDataFailed("receiving data failed");
+                throw TcpServerException::RecvDataFailed("receiving data failed", WSAGetLastError());
             }
 
             char* strData = new char[size];
             if (recv(socket, strData, size, 0) == -1)
             {
-                throw TcpServerException::RecvDataFailed("receiving data failed");
+                throw TcpServerException::RecvDataFailed("receiving data failed", WSAGetLastError());
             }
 
             data = strData;

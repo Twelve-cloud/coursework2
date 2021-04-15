@@ -38,7 +38,7 @@ void serverMenu(std::size_t menuItem)
 
     for (std::size_t i = 0; i < items.size(); ++i)
     {
-        if (i == menuItem)
+        if (i == menuItem - 1)
         {
             SetConsoleTextAttribute(hConsole, (WORD)((Color::LIGHT_BLUE << Color::RED) | Color::WHITE));
             serverTable << items[i];
