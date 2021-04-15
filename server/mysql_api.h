@@ -7,6 +7,8 @@
 class MySqlAPI
 {
 private:
+
+private:
     MYSQL* connection;
     MYSQL_RES* resultOfSelect;
     std::string host;

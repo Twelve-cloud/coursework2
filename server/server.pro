@@ -12,6 +12,7 @@ SOURCES += \
 HEADERS += \
     constants.h \
     mysql_api.h \
+    mysql_api_exception.h \
     streamtable.h \
     tcp_server_exception.h \
     winsock_tcp_server.h
