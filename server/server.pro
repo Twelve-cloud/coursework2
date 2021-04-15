@@ -14,3 +14,10 @@ HEADERS += \
     streamtable.h \
     tcp_server_exception.h \
     winsock_tcp_server.h
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/'../../../../../Program Files/MySQL/MySQL Server 8.0/lib/' -llibmysql
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/'../../../../../Program Files/MySQL/MySQL Server 8.0/lib/' -llibmysqld
+
+INCLUDEPATH += $$PWD/'../../../../../Program Files/MySQL/MySQL Server 8.0/include'
+DEPENDPATH += $$PWD/'../../../../../Program Files/MySQL/MySQL Server 8.0/include'
