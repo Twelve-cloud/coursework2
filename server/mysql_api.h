@@ -27,6 +27,26 @@ private:
         }
     }
 
+public:
+    MySqlAPI(const std::string& hst, const std::string& usr, const std::string& password, const std::string& dbname) : host(hst), user(usr), userPassword(password), databaseName(dbname)
+    {
+        connection = getInstance();
+        createConnection();
+    }
+
+    ~MySqlAPI()
+    {
+        mysql_close(connection);
+    }
+
+    void execQuery(const std::string& command)
+    {
+       if (mysql_query(connection, command.c_str()) != 0)
+       {
+           throw MySqlException::ExecutionQueryFailed(mysql_error(connection), mysql_errno(connection));
+       }
+    }
+
 private:
     MYSQL* connection;
     MYSQL_RES* resultOfSelect;
