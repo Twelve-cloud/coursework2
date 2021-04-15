@@ -47,6 +47,39 @@ public:
        }
     }
 
+    void select(const std::string& command)
+    {
+       if (mysql_query(connection, command.c_str()) != 0)
+       {
+           throw MySqlException::ExecutionQueryFailed(mysql_error(connection), mysql_errno(connection));
+       }
+
+       resultOfSelect = mysql_store_result(connection);
+
+       if (resultOfSelect == nullptr)
+       {
+           throw MySqlException::ExecutionQueryFailed(mysql_error(connection), mysql_errno(connection));
+       }
+
+       if (mysql_num_rows(resultOfSelect) == 0)
+       {
+           std::cout << "Query has returned no data" << std::endl;
+       }
+
+       std::size_t numFields = mysql_num_fields(resultOfSelect);
+       MYSQL_ROW row;
+
+       std::cout << "Result of SELECT" << std::endl;
+       while ((row = mysql_fetch_row(resultOfSelect)))
+       {
+           for (std::size_t i = 0; i < numFields; i++)
+           {
+               std::cout << "[" << (row[i] ? row[i] : "NULL") << "] ";
+           }
+           std::cout << std::endl;
+       }
+    }
+
 private:
     MYSQL* connection;
     MYSQL_RES* resultOfSelect;
