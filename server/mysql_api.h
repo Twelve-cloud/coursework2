@@ -80,6 +80,18 @@ public:
        }
     }
 
+    void showLibraryVersion()
+    {
+        std::cout << "Version: " << mysql_get_client_info() << std::endl;
+    }
+
+    void showConnectionInfo()
+    {
+        std::cout << "Host: " << mysql_get_host_info(connection) << std::endl;
+        std::cout << "Server version: " << mysql_get_server_info(connection) << std::endl;
+        std::cout << "Protocol version: " << mysql_get_proto_info(connection) << std::endl;
+    }
+
 private:
     MYSQL* connection;
     MYSQL_RES* resultOfSelect;
