@@ -1,5 +1,5 @@
-#include "streamtable.h"
-#include "constants.h"
+#include "header/streamtable.h"
+#include "header/constants.h"
 #include <cstdint>
 #include <windows.h>
 #include <conio.h>

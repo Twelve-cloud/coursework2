@@ -1,6 +1,7 @@
-#include "winsock_tcp_server.h"
-#include "streamtable.h"
-#include "constants.h"
+#include "header/winsock_tcp_server.h"
+#include "header/streamtable.h"
+#include "header/constants.h"
+#include "header/mysql_api.h"
 #include <iostream>
 
 StreamTable serverTable;
@@ -26,6 +27,25 @@ void startServer(void* server)
 
 int main()
 {    
+    MySqlAPI database("localhost", "root", "26091999", "BrokerBase");
+
+    database.select("SELECT * FROM AccountRole");
+
+    system("pause");
+    system("cls");
+
+    database.execQuery("INSERT INTO AccountRole(rolename) VALUES ('Marina')");
+
+    database.select("SELECT * FROM AccountRole");
+
+    system("pause");
+
+    database.execQuery("DELETE FROM AccountRole WHERE rolename = 'Marina'");
+
+    database.select("SELECT * FROM AccountRole");
+
+    system("pause");
+
     TcpServer server(clientFunc, "127.0.0.1", 3360);
 
     serverTable.AddCol(50);
