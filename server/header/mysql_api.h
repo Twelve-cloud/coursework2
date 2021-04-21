@@ -4,6 +4,8 @@
 #include "mysql_api_exception.h"
 #include <mysql.h>
 #include <iostream>
+#include <cstring>
+#include <algorithm>
 
 class MySqlAPI
 {
@@ -64,6 +66,7 @@ public:
        if (mysql_num_rows(resultOfSelect) == 0)
        {
            std::cout << "Query has returned no data" << std::endl;
+           return;
        }
 
        std::size_t numFields = mysql_num_fields(resultOfSelect);
@@ -78,6 +81,56 @@ public:
            }
            std::cout << std::endl;
        }
+    }
+
+    void select(const std::string& command, const std::size_t& argc, ...)
+    {
+        if (mysql_query(connection, command.c_str()) != 0)
+        {
+            throw MySqlException::ExecutionQueryFailed(mysql_error(connection), mysql_errno(connection));
+        }
+
+        resultOfSelect = mysql_store_result(connection);
+
+        if (resultOfSelect == nullptr)
+        {
+            throw MySqlException::ExecutionQueryFailed(mysql_error(connection), mysql_errno(connection));
+        }
+
+        if (mysql_num_rows(resultOfSelect) == 0)
+        {
+            std::cout << "Query has returned no data" << std::endl;
+            return;
+        }
+
+        std::size_t numFields = mysql_num_fields(resultOfSelect);
+        MYSQL_ROW row;
+
+        std::string allFields;
+
+        while ((row = mysql_fetch_row(resultOfSelect)))
+        {
+            for (std::size_t i = 0; i < numFields; i++)
+            {
+                allFields += std::string((row[i] ? row[i] : "NULL")) + "~~~";
+            }
+        }
+
+        va_list list;
+        va_start(list, allFields);
+
+        for (std::size_t i = 0; i < argc - 1; i++)
+        {
+            std::string::size_type indexOfTheEndOfTheField = allFields.find("~~~");
+
+            if (indexOfTheEndOfTheField != std::string::npos)
+            {
+                std::strcpy(va_arg(list, char*), allFields.substr(0, indexOfTheEndOfTheField).c_str());
+                allFields.erase(0, indexOfTheEndOfTheField + 3);
+            }
+        }
+
+        va_end(list);
     }
 
     void showLibraryVersion()

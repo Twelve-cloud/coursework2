@@ -10,7 +10,7 @@ SOURCES += \
         source/menu.cpp
 
 HEADERS += \
-    header/Account.h \
+    header/account.h \
     header/constants.h \
     header/mysql_api.h \
     header/mysql_api_exception.h \

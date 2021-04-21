@@ -4,6 +4,8 @@
 #include "header/mysql_api.h"
 #include <iostream>
 
+#include <header/account.h>
+
 StreamTable serverTable;
 void renderMenu(void (*renderMenuAndHighlightItem)(std::size_t), std::size_t RangeLast, std::size_t& menuItem);
 void serverMenu(std::size_t menuItem);
@@ -29,21 +31,21 @@ int main()
 {    
     MySqlAPI database("localhost", "root", "26091999", "BrokerBase");
 
-    database.select("SELECT * FROM AccountRole");
+    Account test;
 
-    system("pause");
-    system("cls");
+//    database.execQuery("INSERT INTO AccountRole(rolename) VALUES ('Broker'), ('Consultant'), ('User');");
+//    database.execQuery("DELETE FROM AccountRole");
+//    database.select("SELECT * FROM AccountRole");
+//    system("pause");
+//    database.execQuery("INSERT INTO UserAccount(mnum, login, pass) VALUES ('+375(44)771-41-44', 'ilyasavin', '26091999')");
+//    database.execQuery("DELETE FROM UserAccount");
+//    database.select("SELECT * FROM UserAccount");
+//    system("pause");
 
-    database.execQuery("INSERT INTO AccountRole(rolename) VALUES ('Marina')");
-
-    database.select("SELECT * FROM AccountRole");
-
-    system("pause");
-
-    database.execQuery("DELETE FROM AccountRole WHERE rolename = 'Marina'");
-
-    database.select("SELECT * FROM AccountRole");
-
+    char login[1024], password[1024], mnum[1024], anum[1024], role[1024];
+    database.select("SELECT * FROM UserAccount", 6, anum, role, mnum, login, password);
+    std::cout << "Login: " << login << "\nPassword: " << password << "\nAccount number: " << anum << "\nRole: " << role <<  "\nMobile number: " << mnum << std::endl;
+    Account ilya(login, password, mnum);
     system("pause");
 
     TcpServer server(clientFunc, "127.0.0.1", 3360);
