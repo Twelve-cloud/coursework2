@@ -5,7 +5,6 @@
 #include <mysql.h>
 #include <iostream>
 #include <cstring>
-#include <algorithm>
 
 class MySqlAPI
 {
@@ -30,13 +29,20 @@ private:
     }
 
 public:
-    MySqlAPI(const std::string& hst, const std::string& usr, const std::string& password, const std::string& dbname) : host(hst), user(usr), userPassword(password), databaseName(dbname)
+    MySqlAPI(const std::string& hst, const std::string& usr, const std::string& password, const std::string& dbname) : host(hst), user(usr), userPassword(password), databaseName(dbname) {}
+
+    ~MySqlAPI()
+    {
+        mysql_close(connection);
+    }
+
+    void connect()
     {
         connection = getInstance();
         createConnection();
     }
 
-    ~MySqlAPI()
+    void disconnect()
     {
         mysql_close(connection);
     }

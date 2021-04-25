@@ -4,50 +4,55 @@
 #include "header/mysql_api.h"
 #include <iostream>
 
-#include <header/account.h>
+void get(std::string& str, const std::size_t& argc, ...)
+{
+
+    va_list list;
+    va_start(list, str);
+
+    for (std::size_t i = 0; i < argc - 1; i++)
+    {
+        std::string::size_type indexOfTheEndOfTheField = str.find("~~~");
+
+        if (indexOfTheEndOfTheField != std::string::npos)
+        {
+            std::strcpy(va_arg(list, char*), str.substr(0, indexOfTheEndOfTheField).c_str());
+            str.erase(0, indexOfTheEndOfTheField + 3);
+        }
+        else
+        {
+            std::strcpy(va_arg(list, char*), str.c_str());
+        }
+    }
+
+    va_end(list);
+}
 
 StreamTable serverTable;
 void renderMenu(void (*renderMenuAndHighlightItem)(std::size_t), std::size_t RangeLast, std::size_t& menuItem);
 void serverMenu(std::size_t menuItem);
+MySqlAPI database("localhost", "root", "26091999", "BrokerBase");
 
 void clientFunc(void* clientSocket)
 {
     TcpServer::Client socket = *(TcpServer::Client*)(clientSocket);
 
+    database.connect();
     std::string data;
     socket.recvData(data);
-    std::cout << data;
-    while (1) {}
-    socket.close();
-    // основная функция для работы с еденицей подключения
-}
 
-void startServer(void* server)
-{
-    reinterpret_cast<TcpServer*>(server) -> start();
+    char login[100], password[100];
+    get(data, 3, login, password);
+    std::cout << login << " + " << password << std::endl;
+    database.execQuery("INSERT INTO Account VALUES (DEFAULT, '" + std::string(login) + "', '" + std::string(password) + "', '+375(44)774-41-44', 'ilyasavin@mail.ru', 'USER')");
+    database.select("SELECT * FROM Account");
+
+    database.disconnect();
+    socket.close();
 }
 
 int main()
-{    
-    MySqlAPI database("localhost", "root", "26091999", "BrokerBase");
-
-    Account test;
-
-//    database.execQuery("INSERT INTO AccountRole(rolename) VALUES ('Broker'), ('Consultant'), ('User');");
-//    database.execQuery("DELETE FROM AccountRole");
-//    database.select("SELECT * FROM AccountRole");
-//    system("pause");
-//    database.execQuery("INSERT INTO UserAccount(mnum, login, pass) VALUES ('+375(44)771-41-44', 'ilyasavin', '26091999')");
-//    database.execQuery("DELETE FROM UserAccount");
-//    database.select("SELECT * FROM UserAccount");
-//    system("pause");
-
-    char login[1024], password[1024], mnum[1024], anum[1024], role[1024];
-    database.select("SELECT * FROM UserAccount", 6, anum, role, mnum, login, password);
-    std::cout << "Login: " << login << "\nPassword: " << password << "\nAccount number: " << anum << "\nRole: " << role <<  "\nMobile number: " << mnum << std::endl;
-    Account ilya(login, password, mnum);
-    system("pause");
-
+{
     TcpServer server(clientFunc, "127.0.0.1", 3360);
 
     serverTable.AddCol(50);
@@ -64,7 +69,7 @@ int main()
 
         switch (menuItem)
         {
-            case 1: _beginthread(startServer, 0, &server); break;
+            case 1: _beginthread([](void* server) { reinterpret_cast<TcpServer*>(server) -> start(); }, 0, &server); break;
             case 2: server.showHostInfo(); system("pause"); break;
             case 3: server.getClients(); system("pause"); break;
             case 4: server.showWinsockInfo(); system("pause"); break;
