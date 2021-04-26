@@ -20,6 +20,10 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+public slots:
+    void slotRegistrationClicked();
+    void slotSignInClicked();
+
 private:
     Ui::MainWindow *ui;
     AuthentificationWindow authWindow;

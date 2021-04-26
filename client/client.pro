@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -10,12 +10,14 @@ CONFIG += c++17
 
 SOURCES += \
     authentification.cpp \
+    client.cpp \
     main.cpp \
     mainwindow.cpp \
     registration.cpp
 
 HEADERS += \
     authentification.h \
+    client.h \
     mainwindow.h \
     registration.h
 

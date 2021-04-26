@@ -5,11 +5,78 @@ RegistrationWindow::RegistrationWindow(QWidget *parent) : QWidget(parent), ui(ne
 {
     ui->setupUi(this);
 
-    connect(ui -> backButton, &QPushButton::clicked, [=](){ emit backButtonClicked(); });
+    connect(ui -> backButton, &QPushButton::clicked, [=]()
+        {
+            clearLines();
+            emit backButtonClicked();
+        });
 
+    connect(ui -> registrationButton, &QPushButton::clicked, this, &RegistrationWindow::slotRegistrationClicked);
+}
+
+bool RegistrationWindow::isValidSize(const QString& strToValidation, const qint32 begin, const qint32 end)
+{
+    if (strToValidation.size() < begin || strToValidation.size() > end)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool RegistrationWindow::isValidContent(const QString& strToValidation)
+{
+    for (const auto& ch : strToValidation)
+    {
+        if (!ch.isDigit() && !ch.isLetter())
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void RegistrationWindow::setError(const QString& error)
+{
+    ui -> errorLabel -> setText(error);
+    ui -> errorLabel -> setStyleSheet("color: red");
+}
+
+void RegistrationWindow::clearLines()
+{
+    ui -> loginLineEdit -> clear();
+    ui -> passLineEdit -> clear();
+    ui -> emailLineEdit -> clear();
+    ui -> errorLabel -> setText("Регистрация");
+    ui -> errorLabel -> setStyleSheet("color: rgb(200, 200, 200)");
 }
 
 RegistrationWindow::~RegistrationWindow()
 {
     delete ui;
+}
+
+void RegistrationWindow::slotRegistrationClicked()
+{
+    if (!isValidContent(ui -> loginLineEdit -> text()))
+    {
+        setError("Логин должен содержить буквы или цифры");
+    }
+    else if (!isValidSize(ui -> loginLineEdit -> text(), 6, 16))
+    {
+        setError("Логин должен содержить от 6 до 16 символов");
+    }
+    else if (!isValidContent(ui -> passLineEdit -> text()))
+    {
+        setError("Пароль должен содержить буквы или цифры");
+    }
+    else if (!isValidSize(ui -> passLineEdit -> text(), 6, 32))
+    {
+        setError("Пароль должен содержить от 6 до 32 символов");
+    }
+    else
+    {
+        emit registrationButtonClicked();
+    }
 }
