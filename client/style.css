@@ -1,0 +1,41 @@
+QLineEdit {
+    /* цвет поля ввода, размер рамки и цвет ее, загругление рамки */
+    color: rgb(200, 200, 200);
+    border: 1px solid rgb(34, 34, 34);
+    border-radius: 5px;
+    background: rgb(50, 50, 50);
+}
+
+QLineEdit:focus {
+    /* размер рамки и цвет ее для выделеного поля*/
+    border: 1px solid rgb(0, 70, 100);
+}
+
+QLabel {
+    /* цвет метки */
+    color: rgb(200, 200, 200);
+}
+
+AuthentificationWindow {
+    /* цвет фона класса окна аутентификации */
+    background: rgb(50, 50, 50);
+}
+
+RegistrationWindow {
+    /* цвет фона класса окна регистрации */
+    background: rgb(50, 50, 50);
+}
+
+
+QPushButton {
+    /* цвет фона кнопки, цвет фона рамки кнопки и ее размер + загругление + цвет текста на кнопке */
+    background: rgb(90, 90, 90);
+    border: 5px solid rgb(90, 90, 90);
+    border-radius: 5px;
+    color: rgb(200, 200, 200);
+}
+
+QMainWindow {
+    /* цвет фона главного окна */
+    background: rgb(50, 50, 50);
+}
