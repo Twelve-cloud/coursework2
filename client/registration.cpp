@@ -1,9 +1,9 @@
 #include "registration.h"
 #include "ui_registration.h"
 
-RegistrationWindow::RegistrationWindow(QWidget *parent) : QWidget(parent), ui(new Ui::RegistrationWindow)
+RegistrationWindow::RegistrationWindow(QWidget* parent) : QWidget(parent), ui(new Ui::RegistrationWindow)
 {
-    ui->setupUi(this);
+    ui -> setupUi(this);
 
     connect(ui -> backButton, &QPushButton::clicked, [=]()
         {
@@ -14,12 +14,15 @@ RegistrationWindow::RegistrationWindow(QWidget *parent) : QWidget(parent), ui(ne
     connect(ui -> registrationButton, &QPushButton::clicked, this, &RegistrationWindow::slotRegistrationClicked);
 }
 
+RegistrationWindow::~RegistrationWindow()
+{
+    delete ui;
+}
+
 bool RegistrationWindow::isValidSize(const QString& strToValidation, const qint32 begin, const qint32 end)
 {
     if (strToValidation.size() < begin || strToValidation.size() > end)
-    {
         return false;
-    }
 
     return true;
 }
@@ -28,10 +31,46 @@ bool RegistrationWindow::isValidContent(const QString& strToValidation)
 {
     for (const auto& ch : strToValidation)
     {
-        if (!ch.isDigit() && !ch.isLetter())
+        if (!ch.isDigit() && !ch.isLetter() && ch != '_')
         {
             return false;
         }
+    }
+
+    return true;
+}
+
+bool RegistrationWindow::isValidLoginFirstLetter(const QString& login)
+{
+    if (!login[0].isLetter() && login[0] != '_')
+        return false;
+
+    return true;
+}
+
+bool RegistrationWindow::isContainNecessarySymbols(const QString& strToValidation)
+{
+    std::size_t numbersCount = 0, lowLettersCount = 0, upperLettersCount = 0;
+
+    for (const auto& ch : strToValidation)
+    {
+        if (ch.isLower())
+        {
+            ++lowLettersCount;
+        }
+        else if (ch.isUpper())
+        {
+            ++upperLettersCount;
+        }
+        else if (ch.isDigit())
+        {
+            ++numbersCount;
+        }
+    }
+
+    if (numbersCount == 0 || lowLettersCount == 0 || upperLettersCount == 0)
+    {
+        return false;
     }
 
     return true;
@@ -52,28 +91,35 @@ void RegistrationWindow::clearLines()
     ui -> errorLabel -> setStyleSheet("color: rgb(200, 200, 200)");
 }
 
-RegistrationWindow::~RegistrationWindow()
-{
-    delete ui;
-}
-
 void RegistrationWindow::slotRegistrationClicked()
 {
-    if (!isValidContent(ui -> loginLineEdit -> text()))
+    login = ui -> loginLineEdit -> text();
+    password = ui -> passLineEdit -> text();
+    email = ui -> emailLineEdit -> text();
+
+    if (!isValidContent(login))
     {
-        setError("Логин должен содержить буквы или цифры");
+        setError("Логин должен содержить буквы, цифры или символ \"_\"");
     }
-    else if (!isValidSize(ui -> loginLineEdit -> text(), 6, 16))
+    else if (!isValidSize(login, 6, 16))
     {
         setError("Логин должен содержить от 6 до 16 символов");
     }
-    else if (!isValidContent(ui -> passLineEdit -> text()))
+    else if (!isValidLoginFirstLetter(login))
     {
-        setError("Пароль должен содержить буквы или цифры");
+        setError("Логин должен начинаться на букву или символ \"_\"");
     }
-    else if (!isValidSize(ui -> passLineEdit -> text(), 6, 32))
+    else if (!isValidContent(password))
+    {
+        setError("Пароль должен содержить буквы, цифры или символ \"_\"");
+    }
+    else if (!isValidSize(password, 6, 32))
     {
         setError("Пароль должен содержить от 6 до 32 символов");
+    }
+    else if (!isContainNecessarySymbols(password))
+    {
+        setError("Пароль должен содержать цифру и символ в двух регистрах");
     }
     else
     {

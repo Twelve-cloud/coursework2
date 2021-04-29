@@ -1,9 +1,9 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-namespace Color
+namespace Constants
 {
-    enum ConsoleColor
+    enum Color
     {
         BLACK = 0,
         BLUE = 1,
@@ -22,21 +22,15 @@ namespace Color
         YELLOW = 14,
         WHITE = 15
     };
-}
 
-namespace Key
-{
     enum Key
     {
         PAGE_UP = 72,
         PAGE_DOWN = 80,
         ENTER = 13,
-        BACKSPACE = 8
+        BACKSPACE = 8,
     };
-}
 
-namespace Range
-{
     enum Range
     {
         FIRST = 1,

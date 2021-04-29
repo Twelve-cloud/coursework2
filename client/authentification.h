@@ -16,10 +16,12 @@ public:
     explicit AuthentificationWindow(QWidget *parent = nullptr);
     ~AuthentificationWindow();
 
-    bool isValidSize(const QString& strToValidation, const qint32 begin, const qint32 end);
-    bool isValidContent(const QString& strToValidation);
     void setError(const QString& error);
+    bool isEmptyLines();
     void clearLines();
+
+    QString getLogin() const noexcept { return login; }
+    QString getPassword() const noexcept { return password; }
 
 public slots:
     void slotSignInClicked();
@@ -30,6 +32,7 @@ signals:
 
 private:
     Ui::AuthentificationWindow *ui;
+    QString login, password;
 };
 
 #endif // AUTHENTIFICATION_H

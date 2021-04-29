@@ -2,6 +2,8 @@ QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+DESTDIR += "C:\\Users\\twelv\\Dropbox\\coursework3\\client"
+
 CONFIG += c++17
 
 # You can make your code fail to compile if it uses deprecated APIs.
@@ -10,14 +12,12 @@ CONFIG += c++17
 
 SOURCES += \
     authentification.cpp \
-    client.cpp \
     main.cpp \
     mainwindow.cpp \
     registration.cpp
 
 HEADERS += \
     authentification.h \
-    client.h \
     mainwindow.h \
     registration.h
 

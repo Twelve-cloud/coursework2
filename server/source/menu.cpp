@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <conio.h>
 
+using namespace Constants;
 extern StreamTable serverTable;
 
 void renderMenu(void (*renderMenuAndHighlightItem)(std::size_t), std::size_t RangeLast, std::size_t& menuItem)

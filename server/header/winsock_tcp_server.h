@@ -183,13 +183,21 @@ public:
                 throw TcpServerException::SendDataFailed("sending data failed", WSAGetLastError());
             }
         }
-        void recvData(std::string& data)
+        void recvData(std::string& command, std::string& data)
         {
-            int size;
-            if (recv(socket, (char*)&size, sizeof(int), 0) == -1)
+            char com[4];
+            if (recv(socket, com, sizeof(com), 0) == -1)
             {
                 throw TcpServerException::RecvDataFailed("receiving data failed", WSAGetLastError());
             }
+
+            char sizeStr[4096];
+            if (recv(socket, sizeStr, sizeof(sizeStr), 0) == -1)
+            {
+                throw TcpServerException::RecvDataFailed("receiving data failed", WSAGetLastError());
+            }
+
+            int size = atoi(sizeStr);
 
             char* strData = new char[size];
             if (recv(socket, strData, size, 0) == -1)
@@ -197,6 +205,7 @@ public:
                 throw TcpServerException::RecvDataFailed("receiving data failed", WSAGetLastError());
             }
 
+            command = com;
             data = strData;
         }
         void close()

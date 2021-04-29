@@ -62,9 +62,7 @@ public:
            throw MySqlException::ExecutionQueryFailed(mysql_error(connection), mysql_errno(connection));
        }
 
-       resultOfSelect = mysql_store_result(connection);
-
-       if (resultOfSelect == nullptr)
+       if ((resultOfSelect = mysql_store_result(connection)) == nullptr)
        {
            throw MySqlException::ExecutionQueryFailed(mysql_error(connection), mysql_errno(connection));
        }
@@ -96,9 +94,7 @@ public:
             throw MySqlException::ExecutionQueryFailed(mysql_error(connection), mysql_errno(connection));
         }
 
-        resultOfSelect = mysql_store_result(connection);
-
-        if (resultOfSelect == nullptr)
+        if ((resultOfSelect = mysql_store_result(connection)) == nullptr)
         {
             throw MySqlException::ExecutionQueryFailed(mysql_error(connection), mysql_errno(connection));
         }

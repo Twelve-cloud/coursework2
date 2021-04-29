@@ -7,7 +7,8 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    QString filename = "C:\\Users\\twelv\\Dropbox\\coursework3\\client\\style.css";
+
+    QString filename = (app.applicationDirPath() + "\\style.css");
     if (!QFile::exists(filename))
     {
         qFatal("Can't loading styles.");
@@ -17,6 +18,6 @@ int main(int argc, char *argv[])
     app.setStyleSheet(style.readAll());
 
 
-    MainWindow w;
+    MainWindow w("127.0.0.1", 3360);
     return app.exec();
 }
