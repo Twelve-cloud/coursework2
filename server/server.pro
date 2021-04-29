@@ -7,6 +7,7 @@ LIBS += -lws2_32
 
 SOURCES += \
         source/client_func.cpp \
+        source/get_fields.cpp \
         source/main.cpp \
         source/menu.cpp \
         source/output_format.cpp

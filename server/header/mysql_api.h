@@ -135,6 +135,26 @@ public:
         va_end(list);
     }
 
+    bool isExists(const std::string& table, const std::string& field, const std::string& target)
+    {
+        if (mysql_query(connection, std::string("SELECT * FROM " + table + " WHERE " + field + " = '" + target + "';").c_str()) != 0)
+        {
+            throw MySqlException::ExecutionQueryFailed(mysql_error(connection), mysql_errno(connection));
+        }
+
+        if ((resultOfSelect = mysql_store_result(connection)) == nullptr)
+        {
+            throw MySqlException::ExecutionQueryFailed(mysql_error(connection), mysql_errno(connection));
+        }
+
+        if (mysql_num_rows(resultOfSelect) == 0)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     void showLibraryVersion()
     {
         std::cout << "Version: " << mysql_get_client_info() << std::endl;

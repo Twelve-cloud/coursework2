@@ -6,9 +6,9 @@ CREATE TABLE IF NOT EXISTS Account
 	ID INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
     AccountLogin 	VARCHAR(50) CONSTRAINT ch_login CHECK (AccountLogin REGEXP '^[:alpha:][[:alnum:]_]{4,14}[:alnum:]$') UNIQUE,
     AccountPassword VARCHAR(50) CONSTRAINT ch_passw CHECK (AccountPassword REGEXP '^[[:alnum:]_]{6,16}$'),
-    MobileNumber 	VARCHAR(50) CONSTRAINT ch_mnumb CHECK (MobileNumber REGEXP '^[+][:digit:]{3}[(][:digit:]{2}[)][:digit:]{3}-[:digit:]{2}-[:digit:]{2}$'),
-    Email 			VARCHAR(50) CONSTRAINT ch_email CHECK (Email REGEXP '^[:alpha:][[:alnum:]_]{5,15}[@][:alpha:]{2,10}[\.][:alpha:]{2,3}$'),
-    Rolename		VARCHAR(50) CONSTRAINT ch_rolen CHECK (Rolename IN ('BROKER', 'CONSULTANT', 'USER'))
+    MobileNumber 	VARCHAR(50) CONSTRAINT ch_mnumb CHECK (MobileNumber REGEXP '^[+][:digit:]{3}[(][:digit:]{2}[)][:digit:]{3}-[:digit:]{2}-[:digit:]{2}$') UNIQUE,
+    Email 			VARCHAR(50) CONSTRAINT ch_email CHECK (Email REGEXP '^[:alpha:][[:alnum:]_]{5,15}[@][:alpha:]{2,10}[\.][:alpha:]{2,3}$') UNIQUE,
+    Rolename		VARCHAR(50) CONSTRAINT ch_rolen CHECK (Rolename IN ('BROKER', 'CONSULTANT', 'USER')) DEFAULT 'USER'
 );
     
 CREATE TABLE IF NOT EXISTS BanList 

@@ -12,12 +12,14 @@ CONFIG += c++17
 
 SOURCES += \
     authentification.cpp \
+    client_entity.cpp \
     main.cpp \
     mainwindow.cpp \
     registration.cpp
 
 HEADERS += \
     authentification.h \
+    client_entity.h \
     mainwindow.h \
     registration.h
 
