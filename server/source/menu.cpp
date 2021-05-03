@@ -35,7 +35,30 @@ void serverMenu(std::size_t menuItem)
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     serverTable.firstCell(true);
 
-    static std::vector<std::string> items = { "Server start", "Get server info", "Get clients", "Get lib info", "Stop server", "Exit" };
+    static std::vector<std::string> items = { "Server start", "Work with data", "Get mysql API info", "Get server info", "Get clients", "Get lib info", "Stop server", "Exit" };
+
+    for (std::size_t i = 0; i < items.size(); ++i)
+    {
+        if (i == menuItem - 1)
+        {
+            SetConsoleTextAttribute(hConsole, (WORD)((Color::LIGHT_BLUE << Color::RED) | Color::WHITE));
+            serverTable << items[i];
+            SetConsoleTextAttribute(hConsole, (WORD)((Color::BLACK << Color::RED) | Color::LIGHT_BLUE));
+        }
+        else
+        {
+            serverTable << items[i];
+        }
+    }
+}
+
+void accountsMenu(std::size_t menuItem)
+{
+    system("cls");
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    serverTable.firstCell(true);
+
+    static std::vector<std::string> items = { "Add user", "Ban user", "Unban user", "Delete user", "Change user data", "Show users", "Find user", "Sort users", "Back" };
 
     for (std::size_t i = 0; i < items.size(); ++i)
     {

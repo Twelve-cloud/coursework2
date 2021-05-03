@@ -3,6 +3,7 @@
 extern StreamTable serverTable;
 extern StreamTable serverConfigTable;
 extern StreamTable mysqlConfigTable;
+extern StreamTable selectTable;
 
 void setOutputFormat()
 {
@@ -22,4 +23,14 @@ void setOutputFormat()
     mysqlConfigTable.MakeBorderExt(true);
     mysqlConfigTable.SetDelimRow(true, '-');
     mysqlConfigTable.SetDelimCol(true, '|');
+
+    selectTable.AddCol(20);
+    selectTable.AddCol(20);
+    selectTable.AddCol(20);
+    selectTable.AddCol(20);
+    selectTable.AddCol(20);
+    selectTable.AddCol(20);
+    selectTable.MakeBorderExt(true);
+    selectTable.SetDelimRow(true, '-');
+    selectTable.SetDelimCol(true, '|');
 }

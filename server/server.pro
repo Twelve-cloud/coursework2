@@ -10,7 +10,8 @@ SOURCES += \
         source/get_fields.cpp \
         source/main.cpp \
         source/menu.cpp \
-        source/output_format.cpp
+        source/output_format.cpp \
+        source/work_with_accounts.cpp
 
 HEADERS += \
     header/mysql_api.h \

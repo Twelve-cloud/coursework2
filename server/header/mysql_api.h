@@ -8,6 +8,7 @@
 #include <cstring>
 
 extern StreamTable mysqlConfigTable;
+extern StreamTable selectTable;
 
 class MySqlAPI
 {
@@ -79,14 +80,12 @@ public:
        std::size_t numFields = mysql_num_fields(resultOfSelect);
        MYSQL_ROW row;
 
-       std::cout << "Result of SELECT" << std::endl;
        while ((row = mysql_fetch_row(resultOfSelect)))
        {
            for (std::size_t i = 0; i < numFields; i++)
            {
-               std::cout << "[" << (row[i] ? row[i] : "NULL") << "] ";
+               selectTable << (row[i] ? row[i] : "NULL");
            }
-           std::cout << std::endl;
        }
     }
 
@@ -196,13 +195,9 @@ public:
         return true;
     }
 
-    void showLibraryVersion()
+    void showInfo()
     {
         mysqlConfigTable << "Version: " << mysql_get_client_info();
-    }
-
-    void showConnectionInfo()
-    {
         mysqlConfigTable << "Host: " << mysql_get_host_info(connection);
         mysqlConfigTable << "Server version: " << mysql_get_server_info(connection);
         mysqlConfigTable << "Protocol version: " << mysql_get_proto_info(connection);

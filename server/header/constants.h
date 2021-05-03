@@ -34,7 +34,8 @@ namespace Constants
     enum Range
     {
         FIRST = 1,
-        LAST_MAIN = 6
+        LAST_MAIN = 8,
+        LAST_ACC_MENU = 9
     };
 }
 

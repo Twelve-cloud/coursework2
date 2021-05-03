@@ -10,6 +10,7 @@ using namespace Constants;
 StreamTable serverTable;
 StreamTable serverConfigTable;
 StreamTable mysqlConfigTable;
+StreamTable selectTable;
 MySqlAPI database("localhost", "root", "26091999", "BrokerBase");
 // ---------------------------------------------------------------
 
@@ -19,6 +20,7 @@ void renderMenu(void (*renderMenuAndHighlightItem)(std::size_t), std::size_t Ran
 void serverMenu(std::size_t menuItem);
 void clientFunc(void* clientSocket);
 void setOutputFormat();
+void workWithAccounts();
 // -----------------------------------------------------------------------------------------------------------
 
 int main()
@@ -37,13 +39,16 @@ int main()
         switch (menuItem)
         {
             case 1: _beginthread([](void* server) { reinterpret_cast<TcpServer*>(server) -> start(); }, 0, &server); break;
-            case 2: server.showHostInfo(); system("pause"); break;
-            case 3: server.getClients(); system("pause"); break;
-            case 4: server.showWinsockInfo(); system("pause"); break;
-            case 5: server.stop(); system("pause"); break;
-            case 6: isEnd = true;
+            case 2: workWithAccounts(); break;
+            case 3: database.connect(); database.showInfo(); database.disconnect(); system("pause"); break;
+            case 4: server.showHostInfo(); system("pause"); break;
+            case 5: server.getClients(); system("pause"); break;
+            case 6: server.showWinsockInfo(); system("pause"); break;
+            case 7: server.stop(); system("pause"); break;
+            case 8: isEnd = true;
         }
 
     } while (!isEnd);
+
     return 0;
 }
