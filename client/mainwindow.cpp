@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QMessageBox>
 
 MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow), socket(strHost, nPort)
 {
@@ -31,6 +32,8 @@ MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* par
             }
         });
 
+    connect(&socket, &ClientEntity::readyRead, this, &MainWindow::slotReadyRead);
+
     ui -> accountListWidget -> close();
     authWindow.show();
 }
@@ -41,9 +44,33 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::handleResult(const QString& command)
+{
+    if (command == "SRG")
+    {
+        regiWindow.close();
+        regiWindow.clearLines();
+        QMessageBox::information(nullptr, "Информация", "Регистрация успешно завершена", QMessageBox::Ok);
+        authWindow.show();
+    }
+    else if (command == "FRG")
+    {
+        regiWindow.setError("Такой аккаунт уже существует");
+    }
+    else if (command == "SAU")
+    {
+        authWindow.close();
+        this -> show();
+    }
+    else if (command == "FAU")
+    {
+        authWindow.setError("Неверный логин или пароль");
+    }
+}
+
 void MainWindow::slotRegistrationClicked()
 {
-    socket.sendToServer("REG", regiWindow.getLogin() + "~~~" + regiWindow.getPassword() + "~~~" + regiWindow.getEmail() + "~~~");
+    socket.sendToServer("REG", regiWindow.getLogin() + "~~~" + regiWindow.getPassword() + "~~~");
 }
 
 void MainWindow::slotSignInClicked()
@@ -56,4 +83,10 @@ void MainWindow::slotSignInClicked()
     {
         authWindow.setError("Заполните все поля");
     }
+}
+
+void MainWindow::slotReadyRead()
+{
+    QString command = socket.getCommand();
+    handleResult(command);
 }

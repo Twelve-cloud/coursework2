@@ -1,5 +1,6 @@
 #include "registration.h"
 #include "ui_registration.h"
+#include <QKeyEvent>
 
 RegistrationWindow::RegistrationWindow(QWidget* parent) : QWidget(parent), ui(new Ui::RegistrationWindow)
 {
@@ -10,6 +11,9 @@ RegistrationWindow::RegistrationWindow(QWidget* parent) : QWidget(parent), ui(ne
             clearLines();
             emit backButtonClicked();
         });
+
+    ui -> passLineEdit -> setEchoMode(QLineEdit::Password);
+    ui -> againPassLineEdit -> setEchoMode(QLineEdit::Password);
 
     connect(ui -> registrationButton, &QPushButton::clicked, this, &RegistrationWindow::slotRegistrationClicked);
 }
@@ -86,7 +90,7 @@ void RegistrationWindow::clearLines()
 {
     ui -> loginLineEdit -> clear();
     ui -> passLineEdit -> clear();
-    ui -> emailLineEdit -> clear();
+    ui -> againPassLineEdit -> clear();
     ui -> errorLabel -> setText("Регистрация");
     ui -> errorLabel -> setStyleSheet("color: rgb(200, 200, 200)");
 }
@@ -95,9 +99,12 @@ void RegistrationWindow::slotRegistrationClicked()
 {
     login = ui -> loginLineEdit -> text();
     password = ui -> passLineEdit -> text();
-    email = ui -> emailLineEdit -> text();
 
-    if (!isValidContent(login))
+    if (ui -> againPassLineEdit -> text() != password)
+    {
+        setError("Пароли не совпадают");
+    }
+    else if (!isValidContent(login))
     {
         setError("Логин должен содержить буквы, цифры или символ \"_\"");
     }
@@ -124,5 +131,38 @@ void RegistrationWindow::slotRegistrationClicked()
     else
     {
         emit registrationButtonClicked();
+    }
+}
+
+void RegistrationWindow::keyPressEvent(QKeyEvent *event)
+{
+    static uint32_t count;
+    if (ui -> loginLineEdit == qApp->focusWidget())
+    {
+        count = 1;
+    }
+    else if (ui -> passLineEdit == qApp->focusWidget())
+    {
+        count = 2;
+    }
+    else if (ui -> againPassLineEdit == qApp->focusWidget())
+    {
+        count = 3;
+    }
+    if (event->key() == Qt::Key_Down && count < 3)
+    {
+        count++;
+        if (count == 2)
+            ui -> passLineEdit -> setFocus();
+        else if (count == 3)
+            ui ->againPassLineEdit -> setFocus();
+    }
+    else if (event->key() == Qt::Key_Up && count > 1)
+    {
+        count--;
+        if (count == 1)
+            ui -> loginLineEdit -> setFocus();
+        else if (count == 2)
+             ui -> passLineEdit -> setFocus();
     }
 }

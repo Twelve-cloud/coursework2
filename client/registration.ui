@@ -24,9 +24,9 @@
    </property>
    <layout class="QGridLayout" name="gridLayout">
     <item row="3" column="0">
-     <widget class="QLabel" name="emailLabel">
+     <widget class="QLabel" name="againPassLabel">
       <property name="text">
-       <string>Email</string>
+       <string>Повторите пароль</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -104,7 +104,7 @@
      </widget>
     </item>
     <item row="3" column="1">
-     <widget class="QLineEdit" name="emailLineEdit">
+     <widget class="QLineEdit" name="againPassLineEdit">
       <property name="minimumSize">
        <size>
         <width>0</width>

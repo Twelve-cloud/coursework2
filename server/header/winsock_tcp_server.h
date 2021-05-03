@@ -170,18 +170,25 @@ public:
     public:
         Client(TcpServer& _server, SOCKET _socket, SOCKADDR_IN _socketData) : server(_server), socket(_socket), socketData(_socketData) {}
 
-        void sendData(const std::string& sendingStr)
+        void sendData(const std::string& command, const std::string& data)
         {
-            int size = sendingStr.size();
-            if (send(socket, (char*)&size, sizeof(int), 0) == -1)
+            if (send(socket, command.c_str(), 4, 0) == -1)
             {
                 throw TcpServerException::SendDataFailed("sending data failed", WSAGetLastError());
             }
 
-            if (send(socket, sendingStr.c_str(), sendingStr.size(), 0) == -1)
+            char sizeStr[4096];
+            itoa(data.size(), sizeStr, 10);
+            if (send(socket, sizeStr, sizeof(sizeStr), 0) == -1)
             {
                 throw TcpServerException::SendDataFailed("sending data failed", WSAGetLastError());
             }
+
+            if (send(socket, data.c_str(), data.size(), 0) == -1)
+            {
+                throw TcpServerException::SendDataFailed("sending data failed", WSAGetLastError());
+            }
+
         }
         void recvData(std::string& command, std::string& data)
         {

@@ -6,6 +6,7 @@ extern MySqlAPI database;
 
 void getFields(std::string& str, const std::size_t& argc, ...);
 void registration(TcpServer::Client& socket, std::string& str);
+void autherization(TcpServer::Client& socket, std::string& str);
 
 void clientFunc(void* clientSocket)
 {
@@ -20,7 +21,10 @@ void clientFunc(void* clientSocket)
         if (command == "REG")
         {
             registration(socket, str);
-            socket.sendData("REG TRUE");
+        }
+        else if (command == "ATH")
+        {
+            autherization(socket, str);
         }
 
     } while(str != "EXT");
@@ -32,13 +36,33 @@ void clientFunc(void* clientSocket)
 void registration(TcpServer::Client& socket, std::string& str)
 {
     try {
-        char email[36], password[36], login[36];
-        getFields(str, 4, login, password, email);
-        database.execQuery("INSERT INTO Account(AccountLogin, AccountPassword, Email) VALUES ('" + std::string(login) + "', '" + std::string(password) + "', '" + std::string(email) + "')");
+        char password[36], login[36];
+        getFields(str, 3, login, password);
+        database.execQuery("INSERT INTO Account(AccountLogin, AccountPassword) VALUES ('" + std::string(login) + "', '" + std::string(password) + "')");
+        socket.sendData("SRG", "");
     }
     catch (const MySqlException::ExecutionQueryFailed error)
     {
-        socket.sendData("REG FALSE");
-        std::cout << error.what();
+        socket.sendData("FRG", "");
+    }
+}
+
+void autherization(TcpServer::Client& socket, std::string& str)
+{
+    try {
+        char password[36], login[36];
+        getFields(str, 3, login, password);
+        if (database.isExists("SELECT COUNT(*) FROM Account WHERE (AccountLogin = '" + std::string(login) + "' AND AccountPassword = '" + std::string(password) + "')"))
+        {
+            socket.sendData("SAU", "");
+        }
+        else
+        {
+            socket.sendData("FAU", "");
+        }
+    }
+    catch (const MySqlException::ExecutionQueryFailed error)
+    {
+        socket.sendData("FAU", "");
     }
 }

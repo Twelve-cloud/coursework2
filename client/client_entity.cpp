@@ -4,6 +4,8 @@ ClientEntity::ClientEntity(const QString& strHost, const qint32& nPort) : nextBl
 {
     tcpSocket = new QTcpSocket(this);
     tcpSocket -> connectToHost(strHost, nPort);
+
+    connect(tcpSocket, &QTcpSocket::readyRead, this, &ClientEntity::slotReadyRead);
 }
 
 ClientEntity::~ClientEntity() {}
@@ -22,27 +24,18 @@ void ClientEntity::sendToServer(const QString& command, const QString& string)
 
 void ClientEntity::slotReadyRead()
 {
-    QDataStream in(tcpSocket);
-    QString string;
+    char com[4];
+    tcpSocket -> read(com, 4);
 
-    while (true)
-    {
+    char sizeStr[4096];
+    tcpSocket -> read(sizeStr, 4096);
+    int size = atoi(sizeStr);
 
-        if (!nextBlockSize)
-        {
-            if (tcpSocket -> bytesAvailable() < qint64(sizeof(quint32)))
-            {
-                break;
-            }
-            in >> nextBlockSize;
-        }
+    char strData[size];
+    tcpSocket -> read(strData, size);
 
-        if (tcpSocket -> bytesAvailable() < nextBlockSize)
-        {
-            break;
-        }
-        in >> string;
-        handleResult(string);
-        nextBlockSize = 0;
-    }
+    command = com;
+    data = strData;
+
+    emit readyRead();
 }

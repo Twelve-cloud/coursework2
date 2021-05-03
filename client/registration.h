@@ -25,10 +25,10 @@ public:
 
     QString getLogin() const noexcept { return login; }
     QString getPassword() const noexcept { return password; }
-    QString getEmail() const noexcept { return email; }
 
 public slots:
     void slotRegistrationClicked();
+    void keyPressEvent(QKeyEvent *event);
 
 signals:
     void registrationButtonClicked();
@@ -36,7 +36,7 @@ signals:
 
 private:
     Ui::RegistrationWindow *ui;
-    QString login, password, email;
+    QString login, password;
 };
 
 #endif // REGISTRATION_H

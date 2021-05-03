@@ -25,6 +25,7 @@ public:
 
 public slots:
     void slotSignInClicked();
+    void keyPressEvent(QKeyEvent *event);
 
 signals:
     void signInButtonClicked();

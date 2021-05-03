@@ -21,9 +21,12 @@ public:
     MainWindow(const QString& strHost, const qint32& nPort, QWidget *parent = nullptr);
     ~MainWindow();
 
+    void handleResult(const QString& command);
+
 public slots:
     void slotRegistrationClicked();
     void slotSignInClicked();
+    void slotReadyRead();
 
 private:
     Ui::MainWindow *ui;
