@@ -26,6 +26,7 @@ public:
 public slots:
     void slotRegistrationClicked();
     void slotSignInClicked();
+    void slotOrderClicked();
     void slotReadyRead();
 
 private:

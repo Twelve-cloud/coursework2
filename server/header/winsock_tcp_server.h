@@ -2,6 +2,7 @@
 #define WINSOCK_TCP_SERVER_H
 
 #include "tcp_server_exception.h"
+#include "streamtable.h"
 #include <functional>
 #include <iostream>
 #include <iomanip>
@@ -11,6 +12,8 @@
 #include <memory>
 #include <string>
 #include <map>
+
+extern StreamTable serverConfigTable;
 
 class TcpServer
 {
@@ -81,6 +84,7 @@ public:
         hostData = getHostData();
         createSocket();
         bindSocket(address, port);
+        system("pause");
     }
     ~TcpServer()
     {
@@ -91,16 +95,16 @@ public:
 
     void showWinsockInfo()
     {
-        std::cout << std::setw(30) << "WS Version" << std::setw(30) << initializationParams.wVersion << std::endl;
-        std::cout << std::setw(30) << "WS High Version" << std::setw(30) << initializationParams.wHighVersion << std::endl;
-        std::cout << std::setw(30) << "WS Description" << std::setw(30) << initializationParams.szDescription << std::endl;
-        std::cout << std::setw(30) << "Status" << std::setw(30) << initializationParams.szSystemStatus << std::endl;
+        serverConfigTable << "WS Version" << initializationParams.wVersion;
+        serverConfigTable << "WS High Version" << initializationParams.wHighVersion;
+        serverConfigTable << "WS Description" << initializationParams.szDescription;
+        serverConfigTable << "Status" << initializationParams.szSystemStatus;
     }
     void showHostInfo()
     {
-        std::cout << std::setw(30) << "Hostname" << std::setw(30) << hostData -> h_name << std::endl;
-        std::cout << std::setw(30) << "Address type" << std::setw(30) << hostData -> h_addrtype << std::endl;
-        std::cout << std::setw(30) << "Address length" << std::setw(30) << hostData -> h_length << std::endl;
+        serverConfigTable << "Hostname" << hostData -> h_name;
+        serverConfigTable << "Address type" << hostData -> h_addrtype;
+        serverConfigTable << "Address length" << hostData -> h_length;
 
         for (std::size_t i = 0; hostData -> h_aliases[i] != 0; i++)
         {
@@ -111,7 +115,7 @@ public:
         {
             in_addr addr; // структура, представляющая собой адреса интернета, где s_addr - адрес в формате ulong
             addr.s_addr = *(unsigned long*)hostData -> h_addr_list[i];
-            std::cout << std::setw(29) << "Address #" << i + 1 << std::setw(30) << inet_ntoa(addr) << std::endl; // inet_ntoa - преобразует сетевой формат к строковому виду
+            serverConfigTable << "Address #" + std::to_string(i + 1) << inet_ntoa(addr); // inet_ntoa - преобразует сетевой формат к строковому виду
         }
     }
     void getClients()
@@ -139,7 +143,7 @@ public:
             SOCKET newClientSocket = accept(serverSocket, (SOCKADDR*)&clientSocketData, &sizeClientSocketData);
 
             if (isWork == false)
-                break;
+                _endthread();
 
             Client clientSocket(*this, newClientSocket, clientSocketData);
             clientSockets.insert(std::make_pair(inet_ntoa(clientSocketData.sin_addr), clientSocket)); // inet_ntoa преобразует in_addr к строковому виду
@@ -190,7 +194,7 @@ public:
             }
 
         }
-        void recvData(std::string& command, std::string& data)
+        void recvData(std::string& command, std::string& data) try
         {
             char com[4];
             if (recv(socket, com, sizeof(com), 0) == -1)
@@ -215,6 +219,11 @@ public:
             command = com;
             data = strData;
         }
+        catch (const TcpServerException::RecvDataFailed& error)
+        {
+            _endthread();
+        }
+
         void close()
         {
             if (socket != NULL)

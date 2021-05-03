@@ -40,7 +40,7 @@ int main()
             case 2: server.showHostInfo(); system("pause"); break;
             case 3: server.getClients(); system("pause"); break;
             case 4: server.showWinsockInfo(); system("pause"); break;
-            case 5: server.stop(); break;
+            case 5: server.stop(); system("pause"); break;
             case 6: isEnd = true;
         }
 

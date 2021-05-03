@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QMessageBox>
+#include <QMovie>
 
 MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow), socket(strHost, nPort)
 {
@@ -31,9 +32,15 @@ MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* par
                 ui -> accountListWidget -> show();
             }
         });
+    connect(ui -> orderButton, &QPushButton::clicked, this, &MainWindow::slotOrderClicked);
 
     connect(&socket, &ClientEntity::readyRead, this, &MainWindow::slotReadyRead);
 
+    ui -> loading -> close();
+    QMovie* movie = new QMovie("loading.gif");
+    ui -> loading -> setMovie(movie);
+    movie -> start();
+    ui -> closeLoading -> close();
     ui -> accountListWidget -> close();
     authWindow.show();
 }
@@ -83,6 +90,11 @@ void MainWindow::slotSignInClicked()
     {
         authWindow.setError("Заполните все поля");
     }
+}
+
+void MainWindow::slotOrderClicked()
+{
+    QMessageBox::information(nullptr, "Информация", "Ваша заявка принята. \nС вами свяжется консультант в ближайшее время", QMessageBox::Ok);
 }
 
 void MainWindow::slotReadyRead()

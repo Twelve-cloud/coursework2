@@ -2,9 +2,12 @@
 #define MYSQL_API_H
 
 #include "mysql_api_exception.h"
+#include "streamtable.h"
 #include <mysql.h>
 #include <iostream>
 #include <cstring>
+
+extern StreamTable mysqlConfigTable;
 
 class MySqlAPI
 {
@@ -195,14 +198,14 @@ public:
 
     void showLibraryVersion()
     {
-        std::cout << "Version: " << mysql_get_client_info() << std::endl;
+        mysqlConfigTable << "Version: " << mysql_get_client_info();
     }
 
     void showConnectionInfo()
     {
-        std::cout << "Host: " << mysql_get_host_info(connection) << std::endl;
-        std::cout << "Server version: " << mysql_get_server_info(connection) << std::endl;
-        std::cout << "Protocol version: " << mysql_get_proto_info(connection) << std::endl;
+        mysqlConfigTable << "Host: " << mysql_get_host_info(connection);
+        mysqlConfigTable << "Server version: " << mysql_get_server_info(connection);
+        mysqlConfigTable << "Protocol version: " << mysql_get_proto_info(connection);
     }
 
 private:
