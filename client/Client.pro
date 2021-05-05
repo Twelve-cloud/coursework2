@@ -13,6 +13,7 @@ CONFIG += c++17
 SOURCES += \
     authentification.cpp \
     client_entity.cpp \
+    consultant_mainwindow.cpp \
     main.cpp \
     mainwindow.cpp \
     registration.cpp
@@ -20,11 +21,13 @@ SOURCES += \
 HEADERS += \
     authentification.h \
     client_entity.h \
+    consultant_mainwindow.h \
     mainwindow.h \
     registration.h
 
 FORMS += \
     authentification.ui \
+    consultant_mainwindow.ui \
     mainwindow.ui \
     registration.ui
 

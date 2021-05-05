@@ -141,8 +141,8 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>523</x>
-     <y>260</y>
+     <x>515</x>
+     <y>345</y>
     </hint>
     <hint type="destinationlabel">
      <x>495</x>
@@ -167,34 +167,34 @@
    </hints>
   </connection>
   <connection>
-   <sender>consultationButton</sender>
-   <signal>clicked()</signal>
-   <receiver>closeLoading</receiver>
-   <slot>show()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>678</x>
-     <y>644</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>527</x>
-     <y>263</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>closeLoading</sender>
    <signal>clicked()</signal>
    <receiver>closeLoading</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>524</x>
-     <y>259</y>
+     <x>515</x>
+     <y>345</y>
     </hint>
     <hint type="destinationlabel">
-     <x>527</x>
-     <y>260</y>
+     <x>515</x>
+     <y>345</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>consultationButton</sender>
+   <signal>clicked()</signal>
+   <receiver>closeLoading</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>664</x>
+     <y>642</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>499</x>
+     <y>355</y>
     </hint>
    </hints>
   </connection>

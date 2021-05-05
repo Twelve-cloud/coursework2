@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "authentification.h"
+#include "consultant_mainwindow.h"
 #include "registration.h"
 #include "client_entity.h"
 #include <QMainWindow>
@@ -27,12 +28,18 @@ public slots:
     void slotRegistrationClicked();
     void slotSignInClicked();
     void slotOrderClicked();
+    void slotConsultationClicked();
+    void slotCloseConsultationClicked();
+    void slotCancelRequestClicked();
+    void slotAcceptRequestClicked();
     void slotReadyRead();
 
 private:
     Ui::MainWindow *ui;
     AuthentificationWindow authWindow;
     RegistrationWindow regiWindow;
+    ConsultantMainWindow consultantMainWindow;
     ClientEntity socket;
+    QString role;
 };
 #endif // MAINWINDOW_H

@@ -29,7 +29,7 @@ int main()
 
     setOutputFormat();
 
-    bool isEnd;
+    bool isEnd = false;
     std::size_t menuItem = Range::FIRST;
 
     do

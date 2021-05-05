@@ -13,6 +13,7 @@ AuthentificationWindow::AuthentificationWindow(QWidget* parent) : QWidget(parent
         });
 
     ui -> passLineEdit -> setEchoMode(QLineEdit::Password);
+    ui -> authentificationButton -> setShortcut(Qt::Key_Return);
 
     connect(ui -> authentificationButton, &QPushButton::clicked, this, &AuthentificationWindow::slotSignInClicked);
 }

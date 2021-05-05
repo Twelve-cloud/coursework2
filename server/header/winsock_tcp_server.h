@@ -182,13 +182,13 @@ public:
             }
 
             char sizeStr[4096];
-            itoa(data.size(), sizeStr, 10);
+            itoa(data.size() + 1, sizeStr, 10);
             if (send(socket, sizeStr, sizeof(sizeStr), 0) == -1)
             {
                 throw TcpServerException::SendDataFailed("sending data failed", WSAGetLastError());
             }
 
-            if (send(socket, data.c_str(), data.size(), 0) == -1)
+            if (send(socket, data.c_str(), data.size() + 1, 0) == -1)
             {
                 throw TcpServerException::SendDataFailed("sending data failed", WSAGetLastError());
             }
@@ -237,6 +237,11 @@ public:
                                                         })
                                            );
             }
+        }
+
+        std::multimap<std::string, Client> getSockets()
+        {
+            return server.clientSockets;
         }
 
     };

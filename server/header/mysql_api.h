@@ -89,6 +89,41 @@ public:
        }
     }
 
+    std::string select(const std::string& command, bool)
+    {
+        std::string resOfQuery;
+
+       if (mysql_query(connection, command.c_str()) != 0)
+       {
+           throw MySqlException::ExecutionQueryFailed(mysql_error(connection), mysql_errno(connection));
+       }
+
+       if ((resultOfSelect = mysql_store_result(connection)) == nullptr)
+       {
+           throw MySqlException::ExecutionQueryFailed(mysql_error(connection), mysql_errno(connection));
+       }
+
+       if (mysql_num_rows(resultOfSelect) == 0)
+       {
+           std::cout << "Query has returned no data" << std::endl;
+           return "";
+       }
+
+       std::size_t numFields = mysql_num_fields(resultOfSelect);
+       MYSQL_ROW row;
+
+       while ((row = mysql_fetch_row(resultOfSelect)))
+       {
+           for (std::size_t i = 0; i < numFields; i++)
+           {
+               resOfQuery += (row[i] ? row[i] : "NULL");
+
+           }
+       }
+
+       return resOfQuery;
+    }
+
     bool isExists(const std::string& command)
     {
        if (mysql_query(connection, command.c_str()) != 0)

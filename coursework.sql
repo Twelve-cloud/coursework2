@@ -23,6 +23,8 @@ CREATE TABLE IF NOT EXISTS BanList
 INSERT INTO Account(AccountLogin, AccountPassword, MobileNumber, Email, Rolename) VALUES ('ilyasavin', '26091999', '+375(44)774-41-44', 'ilyasavin@mail.ru', 'USER');
 SELECT * FROM Account;
 
+SELECT COUNT(*) FROM Account WHERE (AccountLogin = 'ilyasavin' AND AccountPassword = '26091999');
+
 INSERT INTO BanList(AccountID, started, ended) VALUES (1, '2021-04-23', '2026-04-23');
 SELECT * FROM BanList;
 
