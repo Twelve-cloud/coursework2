@@ -18,10 +18,15 @@ public:
     void addRequestLine(const QString& login);
     void deleteRequestLine(const QString& login);
     QString getLoginCurrentItem();
+    void setError(const QString& error);
 
 signals:
      void cancelRequestClicked();
      void acceptRequestClicked();
+
+public slots:
+     void slotCancelRequest();
+     void slotAcceptRequest();
 
 private:
     Ui::ConsultantMainWindow *ui;

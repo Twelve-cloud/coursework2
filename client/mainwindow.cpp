@@ -3,9 +3,13 @@
 #include <QMessageBox>
 #include <QMovie>
 
+void getFields(std::string& str, const std::size_t& argc, ...);
+
 MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow), socket(strHost, nPort)
 {
     ui -> setupUi(this);
+
+    connect(qApp, &QCoreApplication::aboutToQuit, this, [=]() { socket.sendToServer("EXT", ""); });
 
     connect(&authWindow, &AuthentificationWindow::registrationButtonClicked, [=]()
         {
@@ -39,6 +43,7 @@ MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* par
     connect(&consultantMainWindow, &ConsultantMainWindow::acceptRequestClicked, this, &MainWindow::slotAcceptRequestClicked);
     connect(&consultantMainWindow, &ConsultantMainWindow::cancelRequestClicked, this, &MainWindow::slotCancelRequestClicked);
 
+    connect(&chatWindow, &ChatWindow::endChatClicked, this, &MainWindow::slotEndChatClicked);
 
     connect(&socket, &ClientEntity::readyRead, this, &MainWindow::slotReadyRead);
 
@@ -107,6 +112,42 @@ void MainWindow::handleResult(const QString& command)
         ui -> consultationButton -> setEnabled(true);
         QMessageBox::information(nullptr, "Информация", "Вы были удалены из очереди сотрудником", QMessageBox::Ok);
     }
+    else if (command == "CRC")
+    {
+        char login[32], companion[32];
+        std::string str = socket.getData().toStdString();
+        getFields(str, 3, login, companion);
+
+        if (authWindow.getLogin() == login)
+        {
+            chatWindow.setCompanion(companion);
+            chatWindow.show();
+            this -> close();
+        }
+    }
+    else if (command == "CLC")
+    {
+        char login[32], companion[32];
+        std::string str = socket.getData().toStdString();
+        getFields(str, 3, login, companion);
+
+        if (authWindow.getLogin() == login && chatWindow.getCompanion() == companion)
+        {
+            chatWindow.close();
+            if (role == "USER")
+            {
+                this -> show();
+                ui -> loading -> close();
+                ui -> closeLoading -> close();
+                ui -> consultationButton -> setEnabled(true);
+            }
+            else if (role == "CONSULTANT")
+            {
+                consultantMainWindow.show();
+                consultantMainWindow.deleteRequestLine(consultantMainWindow.getLoginCurrentItem());
+            }
+        }
+    }
 }
 
 void MainWindow::slotRegistrationClicked()
@@ -151,7 +192,28 @@ void MainWindow::slotCancelRequestClicked()
 
 void MainWindow::slotAcceptRequestClicked()
 {
+    chatWindow.setCompanion(consultantMainWindow.getLoginCurrentItem());
+    socket.sendToServer("RAP", chatWindow.getCompanion() + "~~~" + authWindow.getLogin() + "~~~");
+    chatWindow.show();
+    consultantMainWindow.close();
+}
 
+void MainWindow::slotEndChatClicked()
+{
+    socket.sendToServer("CLC", chatWindow.getCompanion() + "~~~" + authWindow.getLogin() + "~~~");
+    chatWindow.close();
+    if (role == "USER")
+    {
+        this -> show();
+        ui -> loading -> close();
+        ui -> closeLoading -> close();
+        ui -> consultationButton -> setEnabled(true);
+    }
+    else if (role == "CONSULTANT")
+    {
+        consultantMainWindow.show();
+        consultantMainWindow.deleteRequestLine(consultantMainWindow.getLoginCurrentItem());
+    }
 }
 
 void MainWindow::slotReadyRead()

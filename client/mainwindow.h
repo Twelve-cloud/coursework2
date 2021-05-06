@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "authentification.h"
+#include "chat_window.h"
 #include "consultant_mainwindow.h"
 #include "registration.h"
 #include "client_entity.h"
@@ -32,6 +33,7 @@ public slots:
     void slotCloseConsultationClicked();
     void slotCancelRequestClicked();
     void slotAcceptRequestClicked();
+    void slotEndChatClicked();
     void slotReadyRead();
 
 private:
@@ -39,6 +41,7 @@ private:
     AuthentificationWindow authWindow;
     RegistrationWindow regiWindow;
     ConsultantMainWindow consultantMainWindow;
+    ChatWindow chatWindow;
     ClientEntity socket;
     QString role;
 };

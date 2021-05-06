@@ -11,6 +11,8 @@ void autherization(TcpServer::Client& socket, std::string& str);
 void consultation(TcpServer::Client& socket, std::string& str);
 void closeConsultation(TcpServer::Client& socket, std::string& str);
 void deleteRequest(TcpServer::Client& socket, std::string& str);
+void acceptRequest(TcpServer::Client& socket, std::string& str);
+void closeChat(TcpServer::Client& socket, std::string& str);
 
 void clientFunc(void* clientSocket)
 {
@@ -42,6 +44,14 @@ void clientFunc(void* clientSocket)
         else if (command == "RDL")
         {
             deleteRequest(socket, str);
+        }
+        else if (command  == "RAP")
+        {
+            acceptRequest(socket, str);
+        }
+        else if (command == "CLC")
+        {
+            closeChat(socket, str);
         }
 
     } while(str != "EXT");
@@ -105,5 +115,21 @@ void deleteRequest(TcpServer::Client& socket, std::string& str)
     for (auto& i : socket.getSockets())
     {
         i.second.sendData("RDL", str); // Консультант удалил запрос из очереди
+    }
+}
+
+void acceptRequest(TcpServer::Client& socket, std::string& str)
+{
+    for (auto& i : socket.getSockets())
+    {
+        i.second.sendData("CRC", str); // Создание чата
+    }
+}
+
+void closeChat(TcpServer::Client& socket, std::string& str)
+{
+    for (auto& i : socket.getSockets())
+    {
+        i.second.sendData("CLC", str); // Закрытие чата
     }
 }

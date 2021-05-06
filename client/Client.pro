@@ -12,14 +12,17 @@ CONFIG += c++17
 
 SOURCES += \
     authentification.cpp \
+    chat_window.cpp \
     client_entity.cpp \
     consultant_mainwindow.cpp \
+    get_fields.cpp \
     main.cpp \
     mainwindow.cpp \
     registration.cpp
 
 HEADERS += \
     authentification.h \
+    chat_window.h \
     client_entity.h \
     consultant_mainwindow.h \
     mainwindow.h \
@@ -27,6 +30,7 @@ HEADERS += \
 
 FORMS += \
     authentification.ui \
+    chat_window.ui \
     consultant_mainwindow.ui \
     mainwindow.ui \
     registration.ui
