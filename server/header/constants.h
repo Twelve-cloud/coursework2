@@ -35,8 +35,9 @@ namespace Constants
     {
         FIRST = 1,
         LAST_MAIN = 8,
-        LAST_ACC_MENU = 9,
-        LAST_ROLES_MENU = 4
+        LAST_ACC_MENU = 10,
+        LAST_ROLES_MENU = 4,
+        LAST_SORT_MENU = 7,
     };
 }
 

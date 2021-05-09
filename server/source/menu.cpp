@@ -58,7 +58,7 @@ void accountsMenu(std::size_t menuItem)
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     serverTable.firstCell(true);
 
-    static std::vector<std::string> items = { "Add account", "Ban account", "Unban account", "Delete account", "Change account data", "Show accounts", "Find account", "Sort accounts", "Back" };
+    static std::vector<std::string> items = { "Add account", "Ban account", "Unban account", "Delete account", "Change account data", "Show accounts", "Show banlist", "Find account", "Sort accounts", "Back" };
 
     for (std::size_t i = 0; i < items.size(); ++i)
     {
@@ -83,6 +83,29 @@ void rolesMenu(std::size_t menuItem)
     serverTable.firstCell(true);
 
     static std::vector<std::string> items = { "USER", "CONSULTANT", "BROKER", "Back" };
+
+    for (std::size_t i = 0; i < items.size(); ++i)
+    {
+        if (i == menuItem - 1)
+        {
+            SetConsoleTextAttribute(hConsole, (WORD)((Color::LIGHT_BLUE << Color::RED) | Color::WHITE));
+            serverTable << items[i];
+            SetConsoleTextAttribute(hConsole, (WORD)((Color::BLACK << Color::RED) | Color::LIGHT_BLUE));
+        }
+        else
+        {
+            serverTable << items[i];
+        }
+    }
+}
+
+void sortMenu(std::size_t menuItem)
+{
+    system("cls");
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    serverTable.firstCell(true);
+
+    static std::vector<std::string> items = { "ID", "Login", "Password", "MobileNumber", "Email", "Rolename", "Back" };
 
     for (std::size_t i = 0; i < items.size(); ++i)
     {

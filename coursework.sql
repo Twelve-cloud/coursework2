@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS BanList
     CONSTRAINT fkey_account FOREIGN KEY (AccountID) REFERENCES Account(ID) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
-INSERT INTO Account(AccountLogin, AccountPassword, MobileNumber, Email, Rolename) VALUES ('ilyasavin', '26091999', '+375(44)774-41-44', 'ilyasavin@mail.ru', 'USER');
+INSERT INTO Account(AccountLogin, AccountPassword, MobileNumber, Email, Rolename) VALUES ('ilyasavin131', '26091999', NULL, NULL, NULL);
 SELECT * FROM Account;
 
 SELECT COUNT(*) FROM Account WHERE (AccountLogin = 'ilyasavin' AND AccountPassword = '26091999');

@@ -51,6 +51,17 @@ public:
         mysql_close(connection);
     }
 
+    void setOrderParams(const std::string& orderBy_, const std::string& direction_)
+    {
+        orderBy = orderBy_;
+        direction = direction_;
+    }
+
+    std::string getOrderParams() const
+    {
+        return (orderBy + " " + direction);
+    }
+
     void execQuery(const std::string& command)
     {
        if (mysql_query(connection, command.c_str()) != 0)
@@ -105,7 +116,6 @@ public:
 
        if (mysql_num_rows(resultOfSelect) == 0)
        {
-           std::cout << "Query has returned no data" << std::endl;
            return "";
        }
 
@@ -245,6 +255,8 @@ private:
     std::string user;
     std::string userPassword;
     std::string databaseName;
+    std::string orderBy = "ID";
+    std::string direction = "ASC";
 };
 
 #endif // MYSQL_API_H
