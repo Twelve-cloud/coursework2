@@ -36,6 +36,12 @@ QString ConsultantMainWindow::getLoginCurrentItem()
     return ui -> listOfRequests -> currentItem() -> text();
 }
 
+void ConsultantMainWindow::setDefaultLabel()
+{
+    ui -> mainLabel -> setText("Запросы на консультацию");
+    ui -> mainLabel -> setStyleSheet("color: black");
+}
+
 void ConsultantMainWindow::setError(const QString& error)
 {
     ui -> mainLabel -> setText(error);

@@ -2,6 +2,7 @@
 #define CHAT_WINDOW_H
 
 #include <QWidget>
+#include <QList>
 
 namespace Ui {
 class ChatWindow;
@@ -15,12 +16,17 @@ public:
     explicit ChatWindow(QWidget *parent = nullptr);
     ~ChatWindow();
 
-    void setCompanion(const QString companion_)
+    void setCompanion(const QString& companion_)
     {
         companion = companion_;
     }
 
     QString getCompanion() { return companion; }
+    QString getMessage() { return message; }
+
+
+    void clearChat();
+    void renderMessage(const QString& role, const QString& message);
 
 signals:
     void sendMessageClicked();

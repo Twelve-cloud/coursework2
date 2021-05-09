@@ -13,6 +13,7 @@ void closeConsultation(TcpServer::Client& socket, std::string& str);
 void deleteRequest(TcpServer::Client& socket, std::string& str);
 void acceptRequest(TcpServer::Client& socket, std::string& str);
 void closeChat(TcpServer::Client& socket, std::string& str);
+void sendMessage(TcpServer::Client& socket, std::string& str);
 
 void clientFunc(void* clientSocket)
 {
@@ -53,8 +54,12 @@ void clientFunc(void* clientSocket)
         {
             closeChat(socket, str);
         }
+        else if (command == "MSD")
+        {
+            sendMessage(socket, str);
+        }
 
-    } while(str != "EXT");
+    } while(command != "EXT");
 
     database.disconnect();
     socket.close();
@@ -131,5 +136,13 @@ void closeChat(TcpServer::Client& socket, std::string& str)
     for (auto& i : socket.getSockets())
     {
         i.second.sendData("CLC", str); // Закрытие чата
+    }
+}
+
+void sendMessage(TcpServer::Client& socket, std::string& str)
+{
+    for (auto& i : socket.getSockets())
+    {
+        i.second.sendData("MSD", str); // Отправка сообщения
     }
 }

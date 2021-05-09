@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QListView" name="chatView">
+  <widget class="QListWidget" name="chatView">
    <property name="geometry">
     <rect>
      <x>200</x>

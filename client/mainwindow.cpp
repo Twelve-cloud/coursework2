@@ -9,8 +9,6 @@ MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* par
 {
     ui -> setupUi(this);
 
-    connect(qApp, &QCoreApplication::aboutToQuit, this, [=]() { socket.sendToServer("EXT", ""); });
-
     connect(&authWindow, &AuthentificationWindow::registrationButtonClicked, [=]()
         {
             authWindow.hide();
@@ -44,6 +42,7 @@ MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* par
     connect(&consultantMainWindow, &ConsultantMainWindow::cancelRequestClicked, this, &MainWindow::slotCancelRequestClicked);
 
     connect(&chatWindow, &ChatWindow::endChatClicked, this, &MainWindow::slotEndChatClicked);
+    connect(&chatWindow, &ChatWindow::sendMessageClicked, this, &MainWindow::slotSendMessageClicked);
 
     connect(&socket, &ClientEntity::readyRead, this, &MainWindow::slotReadyRead);
 
@@ -58,7 +57,7 @@ MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* par
 
 MainWindow::~MainWindow()
 {
-    socket.sendToServer("EXT", "0");
+    socket.sendToServer("EXT", "");
     delete ui;
 }
 
@@ -134,6 +133,7 @@ void MainWindow::handleResult(const QString& command)
         if (authWindow.getLogin() == login && chatWindow.getCompanion() == companion)
         {
             chatWindow.close();
+            chatWindow.clearChat();
             if (role == "USER")
             {
                 this -> show();
@@ -145,7 +145,19 @@ void MainWindow::handleResult(const QString& command)
             {
                 consultantMainWindow.show();
                 consultantMainWindow.deleteRequestLine(consultantMainWindow.getLoginCurrentItem());
+                consultantMainWindow.setDefaultLabel();
             }
+        }
+    }
+    else if (command == "MSD")
+    {
+        char login[32], message[4096];
+        std::string str = socket.getData().toStdString();
+        getFields(str, 3, login, message);
+
+        if (authWindow.getLogin() == login)
+        {
+            chatWindow.renderMessage("RECIEVER", message);
         }
     }
 }
@@ -211,9 +223,16 @@ void MainWindow::slotEndChatClicked()
     }
     else if (role == "CONSULTANT")
     {
+        consultantMainWindow.setDefaultLabel();
         consultantMainWindow.show();
         consultantMainWindow.deleteRequestLine(consultantMainWindow.getLoginCurrentItem());
     }
+}
+
+void MainWindow::slotSendMessageClicked()
+{
+    chatWindow.renderMessage("SENDER", chatWindow.getMessage());
+    socket.sendToServer("MSD", chatWindow.getCompanion() + "~~~" + chatWindow.getMessage() + "~~~");
 }
 
 void MainWindow::slotReadyRead()

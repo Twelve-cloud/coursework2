@@ -34,6 +34,7 @@ public slots:
     void slotCancelRequestClicked();
     void slotAcceptRequestClicked();
     void slotEndChatClicked();
+    void slotSendMessageClicked();
     void slotReadyRead();
 
 private:

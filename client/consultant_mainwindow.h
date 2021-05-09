@@ -18,6 +18,7 @@ public:
     void addRequestLine(const QString& login);
     void deleteRequestLine(const QString& login);
     QString getLoginCurrentItem();
+    void setDefaultLabel();
     void setError(const QString& error);
 
 signals:
