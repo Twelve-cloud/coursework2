@@ -18,7 +18,6 @@ void sendMessage(TcpServer::Client& socket, std::string& str);
 void clientFunc(void* clientSocket)
 {
     TcpServer::Client socket = *(TcpServer::Client*)(clientSocket);
-    database.connect();
 
     std::string command, str;
     do
@@ -61,7 +60,6 @@ void clientFunc(void* clientSocket)
 
     } while(command != "EXT");
 
-    database.disconnect();
     socket.close();
 }
 
@@ -86,7 +84,25 @@ void autherization(TcpServer::Client& socket, std::string& str)
         getFields(str, 3, login, password);
         if (database.isExists("SELECT COUNT(*) FROM Account WHERE (AccountLogin = '" + std::string(login) + "' AND AccountPassword = '" + std::string(password) + "');"))
         {
-            socket.sendData("SAU", database.select("SELECT Rolename FROM Account WHERE AccountLogin = '" + std::string(login) + "';", true));
+            if (!database.isExists("SELECT COUNT(*) FROM BanList WHERE AccountID = (SELECT ID FROM Account WHERE AccountLogin = '" +  std::string(login) + "');"))
+            {
+                socket.sendData("SAU", database.select("SELECT Rolename FROM Account WHERE AccountLogin = '" + std::string(login) + "';", true));
+            }
+            else
+            {
+                std::string ended = database.select("SELECT ended FROM BanList WHERE AccountID = (SELECT ID FROM Account WHERE AccountLogin = '" + std::string(login) + "');", true);
+                time_t tm = time(NULL);
+                char now[64];
+                strftime(now, 64, "%Y-%m-%d", localtime(&tm));
+                if (ended > now)
+                {
+                    socket.sendData("BAN", database.select("SELECT ended FROM BanList WHERE AccountID = (SELECT ID FROM Account WHERE AccountLogin = '" + std::string(login) + "');", true));
+                }
+                else
+                {
+                    socket.sendData("SAU", database.select("SELECT Rolename FROM Account WHERE AccountLogin = '" + std::string(login) + "';", true));
+                }
+            }
         }
         else
         {

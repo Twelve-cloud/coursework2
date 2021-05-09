@@ -26,6 +26,10 @@ void workWithAccounts();
 int main()
 {
     TcpServer server(clientFunc, "127.0.0.1", 3360);
+    database.connect();
+
+    SetConsoleCP(65001);
+    SetConsoleOutputCP(65001);
 
     setOutputFormat();
 
@@ -49,6 +53,8 @@ int main()
         }
 
     } while (!isEnd);
+
+    database.disconnect();
 
     return 0;
 }

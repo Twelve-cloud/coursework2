@@ -14,19 +14,45 @@ CREATE TABLE IF NOT EXISTS Account
 CREATE TABLE IF NOT EXISTS BanList 
 (
 	ID INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    AccountID INT NOT NULL,
-    started DATETIME NOT NULL,
-    ended DATETIME NOT NULL,
+    AccountID INT NOT NULL UNIQUE,
+    started DATE NOT NULL,
+    ended DATE NOT NULL,
     CONSTRAINT fkey_account FOREIGN KEY (AccountID) REFERENCES Account(ID) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
-INSERT INTO Account(AccountLogin, AccountPassword, MobileNumber, Email, Rolename) VALUES ('ilyasavin131', '26091999', NULL, NULL, NULL);
+CREATE TABLE IF NOT EXISTS Company 
+(
+	ID INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    CompanyName VARCHAR(50) CONSTRAINT ch_name CHECK (CompanyName REGEXP '^[:alnum:]{6, 32}$') UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS Service
+(
+	ID INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    ServiceName VARCHAR(50) CONSTRAINT ch_sname CHECK (ServiceName REGEXP '^[:alnum:]{6, 32}$'),
+    CompanyName VARCHAR(50) REFERENCES Company(CompanyName) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Basket
+(
+	ID INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    AccountID INT REFERENCES Account(ID) ON DELETE RESTRICT ON UPDATE CASCADE,
+    ServiceID INT  REFERENCES Service(ID) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO Account(AccountLogin, AccountPassword, MobileNumber, Email, Rolename) VALUES ('ilyasavin', '26091999', '+375(44)774-41-44', 'ilyasavin@mail.ru', 'USER');
+INSERT INTO BanList(AccountID, started, ended) VALUES ((SELECT ID FROM Account WHERE AccountLogin = 'ilyasavin'), '2021-04-23', '2026-04-23');
+
 SELECT * FROM Account;
-
-SELECT COUNT(*) FROM Account WHERE (AccountLogin = 'ilyasavin' AND AccountPassword = '26091999');
-
-INSERT INTO BanList(AccountID, started, ended) VALUES (1, '2021-04-23', '2026-04-23');
 SELECT * FROM BanList;
+SELECT * FROM Company;
+SELECT * FROM Service;
+SELECT * FROM Basket;
 
+DROP TABLE IF EXISTS Basket;
+DROP TABLE IF EXISTS Service;
+DROP TABLE IF EXISTS Company;
 DROP TABLE IF EXISTS BanList;
 DROP TABLE IF EXISTS Account;

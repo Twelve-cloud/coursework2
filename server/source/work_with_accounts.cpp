@@ -4,6 +4,7 @@
 extern MySqlAPI database;
 
 using namespace Constants;
+extern StreamTable selectTable;
 
 void renderMenu(void (*renderMenuAndHighlightItem)(std::size_t), std::size_t RangeLast, std::size_t& menuItem);
 void accountsMenu(std::size_t menuItem);
@@ -22,7 +23,6 @@ void sortAccounts();
 
 void workWithAccounts()
 {
-    database.connect();
     bool isEnd = false;
     std::size_t menuItem = Range::FIRST;
 
@@ -46,7 +46,6 @@ void workWithAccounts()
 
     } while (!isEnd);
 
-    database.disconnect();
 }
 
 void addAccount() try
@@ -85,15 +84,15 @@ void addAccount() try
     }
     system("pause");
 }
-catch (MySqlException::ExecutionQueryFailed)
+catch (const MySqlException::ExecutionQueryFailed& error)
 {
-   std::cout << "Invalid format of data" << std::endl;
+   std::cout << error.what() << std::endl;
    system("pause");
 }
 
 void banAccount() try
 {
-    std::string login, started, ended, argument;
+    std::string login, started, ended;
     std::cout << "Enter login: "; std::getline(std::cin, login);
 
     login = database.select("SELECT AccountLogin FROM Account WHERE AccountLogin = '" + login + "';", true);
@@ -102,9 +101,8 @@ void banAccount() try
     {
         std::cout << "Enter ban begin: "; std::getline(std::cin, started);
         std::cout << "Enter ban end: "; std::getline(std::cin, ended);
-        std::cout << "Enter argument: "; std::getline(std::cin, argument);
 
-        database.execQuery("INSERT INTO BanList(AccountID, started, ended, argument) VALUES ((SELECT ID FROM Account WHERE AccountLogin = '" + login + "'), '" + started + "', '" + ended + "', '" + argument + "');");
+        database.execQuery("INSERT INTO BanList(AccountID, started, ended) VALUES ((SELECT ID FROM Account WHERE AccountLogin = '" + login + "'), '" + started + "', '" + ended + "');");
         std::cout << "Success" << std::endl;
     }
     else
@@ -112,12 +110,11 @@ void banAccount() try
         std::cout << "Account not found" << std::endl;
     }
 }
-catch (MySqlException::ExecutionQueryFailed)
+catch (const MySqlException::ExecutionQueryFailed& error)
 {
-   std::cout << "Invalid format of data" << std::endl;
+   std::cout << error.what() << std::endl;
 }
-
-void unbanAccount() try
+void unbanAccount()  try
 {
     std::string login;
     std::cout << "Enter login: "; std::getline(std::cin, login);
@@ -134,9 +131,9 @@ void unbanAccount() try
         std::cout << "Account not found" << std::endl;
     }
 }
-catch (MySqlException::ExecutionQueryFailed)
+catch (const MySqlException::ExecutionQueryFailed& error)
 {
-   std::cout << "Invalid format of data" << std::endl;
+   std::cout << error.what() << std::endl;
 }
 
 void deleteAccount() try
@@ -156,9 +153,9 @@ void deleteAccount() try
         std::cout << "Account not found" << std::endl;
     }
 }
-catch (MySqlException::ExecutionQueryFailed)
+catch (const MySqlException::ExecutionQueryFailed& error)
 {
-   std::cout << "Invalid format of data" << std::endl;
+   std::cout << error.what() << std::endl;
 }
 
 void changeAccountData() try
@@ -183,27 +180,28 @@ void changeAccountData() try
         std::cout << "Account not found" << std::endl;
     }
 }
-catch (MySqlException::ExecutionQueryFailed)
+catch (const MySqlException::ExecutionQueryFailed& error)
 {
-   std::cout << "Invalid format of data or duplicate (email or login or mobile number)" << std::endl;
+   std::cout << error.what() << std::endl;
 }
 
 void showAccounts() try
 {
+    selectTable.SetCols(6, 20);
     database.select("SELECT * FROM Account ORDER BY " + database.getOrderParams());
 }
-catch (MySqlException::ExecutionQueryFailed)
+catch (const MySqlException::ExecutionQueryFailed& error)
 {
-   std::cout << "Something wrong" << std::endl;
+   std::cout << error.what() << std::endl;
 }
-
 void showBanList() try
 {
+    selectTable.SetCols(4, 20);
     database.select("SELECT * FROM BanList");
 }
-catch (MySqlException::ExecutionQueryFailed)
+catch (const MySqlException::ExecutionQueryFailed& error)
 {
-   std::cout << "Something wrong" << std::endl;
+   std::cout << error.what() << std::endl;
 }
 
 void findAccount() try
@@ -212,9 +210,9 @@ void findAccount() try
     std::cout << "Enter data: "; std::getline(std::cin, data);
     database.select("SELECT * FROM Account WHERE AccountLogin = '" + data + "' OR AccountPassword = '" + data + "' OR MobileNumber = '" + data + "' OR Email = '" + data + "' OR Rolename = '" + data + "';");
 }
-catch (MySqlException::ExecutionQueryFailed)
+catch (const MySqlException::ExecutionQueryFailed& error)
 {
-   std::cout << "Something wrong" << std::endl;
+   std::cout << error.what() << std::endl;
 }
 
 
@@ -257,8 +255,8 @@ void sortAccounts() try
     } while (!isEnd);
 
 }
-catch (MySqlException::ExecutionQueryFailed)
+catch (const MySqlException::ExecutionQueryFailed& error)
 {
-   std::cout << "Something wrong" << std::endl;
+   std::cout << error.what() << std::endl;
    system("pause");
 }

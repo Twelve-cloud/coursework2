@@ -96,6 +96,10 @@ void MainWindow::handleResult(const QString& command)
     {
         authWindow.setError("Неверный логин или пароль");
     }
+    else if (command == "BAN")
+    {
+        authWindow.setError("Вы забанены до " + socket.getData());
+    }
     else if (command == "RCN" && role == "CONSULTANT")
     {
         consultantMainWindow.addRequestLine(socket.getData());
