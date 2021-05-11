@@ -79,6 +79,10 @@ MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* par
                                                                                     {
                                                                                        socket.sendToServer("DES", brokerMainWindow.getServiceName() + "~~~" + brokerMainWindow.getServicePrice() + "~~~" + brokerMainWindow.getCompany() + "~~~");
                                                                                     });
+    connect(&brokerMainWindow, &BrokerMainWindow::cancelRequestButtonClicked, this, [=]()
+                                                                                    {
+                                                                                       socket.sendToServer("CRE", brokerMainWindow.getOrderLogin() + "~~~" + brokerMainWindow.getServiceName() + "~~~");
+                                                                                    });
 
     connect(&socket, &ClientEntity::readyRead, this, &MainWindow::slotReadyRead);
     connect(ui -> orderServiceButton, &QPushButton::clicked, this, &MainWindow::slotOrderServiceClicked);
@@ -306,7 +310,7 @@ void MainWindow::handleResult(const QString& command)
     }
     else if (command == "FCS" && role == "BROKER")
     {
-        QMessageBox::information(nullptr, "Информация", "Ошибка", QMessageBox::Ok);
+        QMessageBox::information(nullptr, "Информация", "Услуга уже существует", QMessageBox::Ok);
     }
     else if (command == "SAS" && role == "BROKER")
     {
@@ -315,7 +319,7 @@ void MainWindow::handleResult(const QString& command)
     }
     else if (command == "FAS" && role == "BROKER")
     {
-        QMessageBox::information(nullptr, "Информация", "Ошибка", QMessageBox::Ok);
+        QMessageBox::information(nullptr, "Информация", "Услуга уже существует", QMessageBox::Ok);
     }
     else if (command == "SDS" && role == "BROKER")
     {
@@ -325,6 +329,19 @@ void MainWindow::handleResult(const QString& command)
     else if (command == "FDS" && role == "BROKER")
     {
         QMessageBox::information(nullptr, "Информация", "Ошибка", QMessageBox::Ok);
+    }
+    else if (command == "SCR" && role == "BROKER")
+    {
+        brokerMainWindow.clearRequests();
+        socket.sendToServer("BGR", "");
+    }
+    else if (command == "FCR" && role == "BROKER")
+    {
+        QMessageBox::information(nullptr, "Информация", "Ошибка", QMessageBox::Ok);
+    }
+    else if (command == "FAR" && role == "USER")
+    {
+        QMessageBox::information(nullptr, "Информация", "Ваша заявка в обработке", QMessageBox::Ok);
     }
 }
 
@@ -438,7 +455,6 @@ void MainWindow::slotOrderServiceClicked()
     ui -> servicePriceLabel -> close();
     ui -> orderServiceButton -> close();
     ui -> cancelServiceButton -> close();
-    QMessageBox::information(nullptr, "Информация", "Ваша заявка оставлена\nБрокер свяжется с вами,\nкак только будет подобрана наилучшая компания", QMessageBox::Ok);
 }
 
 void MainWindow::slotCancelServiceClicked()

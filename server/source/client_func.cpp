@@ -26,6 +26,7 @@ void clientRequestedServices(TcpServer::Client& socket);
 void getServicePrice(TcpServer::Client& socket, std::string& str);
 void clientOrderService(TcpServer::Client& socket, std::string& str);
 void brokerGetRequests(TcpServer::Client& socket);
+void cancelRequest(TcpServer::Client& socket, std::string& str);
 
 void clientFunc(void* clientSocket)
 {
@@ -121,13 +122,17 @@ void clientFunc(void* clientSocket)
         {
             changeService(socket, str);
         }
-        else if (command == "ADS")
+        else if (command == "ADS") // add service
         {
             addService(socket, str);
         }
-        else if (command == "DES")
+        else if (command == "DES") // delete service
         {
             deleteService(socket, str);
+        }
+        else if (command == "CRE") // cancel request
+        {
+            cancelRequest(socket, str);
         }
 
     } while(command != "EXT"); // exit
@@ -362,18 +367,38 @@ void getServicePrice(TcpServer::Client& socket, std::string& str)
 
 void clientOrderService(TcpServer::Client& socket, std::string& str)
 {
-    char client[32], service[32];
-    getFields(str, 3, client, service);
-
-    database.execQuery("INSERT INTO Basket(AccountID, ServiceName) VALUES ((SELECT ID FROM Account WHERE AccountLogin = '" + std::string(client) + "'), '" + service + "');");
-
-    for (auto& i : socket.getSockets())
+    try
     {
-        i.second.sendData("HCS", str); // handle client service
+        char client[32], service[32];
+        getFields(str, 3, client, service);
+
+        database.execQuery("INSERT INTO Basket(AccountID, ServiceName) VALUES ((SELECT ID FROM Account WHERE AccountLogin = '" + std::string(client) + "'), '" + service + "');");
+
+        for (auto& i : socket.getSockets())
+        {
+            i.second.sendData("HCS", str); // handle client service
+        }
+
+    }
+    catch (const MySqlException::ExecutionQueryFailed& error)
+    {
+        socket.sendData("FAR", ""); // fail add request
     }
 }
 
 void brokerGetRequests(TcpServer::Client& socket)
 {
     socket.sendData("BGR", database.getAllRows("SELECT AccountLogin, ServiceName FROM Account, Basket WHERE Account.ID = Basket.AccountID;"));
+}
+
+void cancelRequest(TcpServer::Client& socket, std::string& str)
+{
+    char client[32], service[32];
+    getFields(str, 3, client, service);
+    database.execQuery("DELETE FROM Basket WHERE AccountID = (SELECT ID FROM Account WHERE AccountLogin = '" + std::string(client) + "') AND ServiceName = '" + service + "';");
+
+    for (auto& i : socket.getSockets())
+    {
+        i.second.sendData("SCR", str); // success cancel request
+    }
 }

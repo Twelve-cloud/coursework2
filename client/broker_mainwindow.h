@@ -23,6 +23,7 @@ public:
     QString getServiceName() const noexcept { return serviceName; }
     QString getServicePrice() const noexcept { return servicePrice; }
     QString getService() const noexcept { return serviceName + servicePrice + company + "~~~"; }
+    QString getOrderLogin() const noexcept { return orderLogin; }
     void clearCompanies();
     void clearRequests();
     void clearServices();
@@ -44,6 +45,7 @@ public slots:
     void slotChangeServiceButtonLastClicked();
     void slotDeleteServiceButtonClicked();
     void slotCancelAddServiceButtonClicked();
+    void slotCancelRequestButtonClicked();
 
 signals:
     void companyButtonClicked();
@@ -55,11 +57,13 @@ signals:
     void serviceChangeButtonLastClicked();
     void serviceAddButtonLastClicked();
     void serviceDeleteButtonClicked();
+    void cancelRequestButtonClicked();
 
 private:
     QString serviceName;
     QString servicePrice;
     QString company;
+    QString orderLogin;
     Ui::broker_mainwindow *ui;
 };
 

@@ -49,6 +49,7 @@ BrokerMainWindow::BrokerMainWindow(QWidget *parent) : QWidget(parent), ui(new Ui
     connect(ui ->deleteServiceButton, &QPushButton::clicked, this, &BrokerMainWindow::slotDeleteServiceButtonClicked);
     connect(ui-> changeServiceButtonLast, &QPushButton::clicked, this, &BrokerMainWindow::slotChangeServiceButtonLastClicked);
     connect(ui->cancelAddServiceButton, &QPushButton::clicked, this, &BrokerMainWindow::slotCancelAddServiceButtonClicked);
+    connect(ui->cancelRequestButton, &QPushButton::clicked, this, &BrokerMainWindow::slotCancelRequestButtonClicked);
 }
 
 BrokerMainWindow::~BrokerMainWindow()
@@ -468,4 +469,31 @@ void BrokerMainWindow::slotCancelAddServiceButtonClicked()
     ui->priceServiceLineEdit->close();
     ui->changeServiceView->close();
     ui->cancelAddServiceButton->close();
+}
+
+void BrokerMainWindow::slotCancelRequestButtonClicked()
+{
+    std::string loginAndService;
+
+    bool isSelected = false;
+    for (std::size_t i = 0; i < ui -> handleWidget -> count(); i++)
+    {
+        if (ui -> handleWidget -> item(i) -> isSelected())
+        {
+            loginAndService = ui -> handleWidget -> item(i) -> text().toStdString();
+            isSelected = true;
+        }
+    }
+
+    if (!isSelected)
+    {
+        QMessageBox::information(nullptr, "Информация", "Выберите заявку", QMessageBox::Ok);
+        return;
+    }
+
+    orderLogin = loginAndService.substr(0, loginAndService.find('-')).c_str();
+    loginAndService.erase(0, loginAndService.find('-') + 3);
+    serviceName = loginAndService.c_str();
+
+    emit cancelRequestButtonClicked();
 }
