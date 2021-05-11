@@ -4,6 +4,7 @@
 #include "authentification.h"
 #include "chat_window.h"
 #include "consultant_mainwindow.h"
+#include "broker_mainwindow.h"
 #include "registration.h"
 #include "client_entity.h"
 #include <QMainWindow>
@@ -36,12 +37,14 @@ public slots:
     void slotEndChatClicked();
     void slotSendMessageClicked();
     void slotReadyRead();
+    void slotCompanyButtonClicked();
 
 private:
     Ui::MainWindow *ui;
     AuthentificationWindow authWindow;
     RegistrationWindow regiWindow;
     ConsultantMainWindow consultantMainWindow;
+    BrokerMainWindow brokerMainWindow;
     ChatWindow chatWindow;
     ClientEntity socket;
     QString role;

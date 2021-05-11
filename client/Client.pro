@@ -12,6 +12,7 @@ CONFIG += c++17
 
 SOURCES += \
     authentification.cpp \
+    broker_mainwindow.cpp \
     chat_window.cpp \
     client_entity.cpp \
     consultant_mainwindow.cpp \
@@ -22,6 +23,7 @@ SOURCES += \
 
 HEADERS += \
     authentification.h \
+    broker_mainwindow.h \
     chat_window.h \
     client_entity.h \
     consultant_mainwindow.h \
@@ -30,6 +32,7 @@ HEADERS += \
 
 FORMS += \
     authentification.ui \
+    broker_mainwindow.ui \
     chat_window.ui \
     consultant_mainwindow.ui \
     mainwindow.ui \

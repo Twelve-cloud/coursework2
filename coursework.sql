@@ -23,27 +23,40 @@ CREATE TABLE IF NOT EXISTS BanList
 CREATE TABLE IF NOT EXISTS Company 
 (
 	ID INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    CompanyName VARCHAR(50) CONSTRAINT ch_name CHECK (CompanyName REGEXP '^[:alnum:]{6, 32}$') UNIQUE
+    CompanyName VARCHAR(50) CONSTRAINT ch_cname CHECK (CompanyName REGEXP '^[[:alnum:] "]{6,16}$') UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS Service
 (
 	ID INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    ServiceName VARCHAR(50) CONSTRAINT ch_sname CHECK (ServiceName REGEXP '^[:alnum:]{6, 32}$'),
-    CompanyName VARCHAR(50) REFERENCES Company(CompanyName) ON DELETE CASCADE ON UPDATE CASCADE
+    ServiceName VARCHAR(50) CONSTRAINT ch_sname CHECK (ServiceName REGEXP '^[[:alnum:] "]{6,32}$'),
+    ServicePrice DOUBLE(8, 2) NOT NULL,
+    CompanyName VARCHAR(50),
+    CONSTRAINT fkey_company FOREIGN KEY (CompanyName) REFERENCES Company(CompanyName) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Basket
 (
 	ID INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    AccountID INT REFERENCES Account(ID) ON DELETE RESTRICT ON UPDATE CASCADE,
-    ServiceID INT  REFERENCES Service(ID) ON DELETE CASCADE ON UPDATE CASCADE
+    AccountID INT,
+    ServiceID INT,
+    CONSTRAINT fkey_acc FOREIGN KEY(AccountID) REFERENCES Account(ID) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fkey_service FOREIGN KEY(ServiceID) REFERENCES Service(ID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO Account(AccountLogin, AccountPassword, MobileNumber, Email, Rolename) VALUES ('ilyasavin', '26091999', '+375(44)774-41-44', 'ilyasavin@mail.ru', 'USER');
 INSERT INTO BanList(AccountID, started, ended) VALUES ((SELECT ID FROM Account WHERE AccountLogin = 'ilyasavin'), '2021-04-23', '2026-04-23');
+INSERT INTO Company(CompanyName) VALUES ('Газпром');
+INSERT INTO Company(CompanyName) VALUES ('Компания Ильи');
+INSERT INTO Service(ServiceName, ServicePrice, CompanyName) VALUES ('Страховка газа', 999.99, 'Газпром');
+INSERT INTO Service(ServiceName, ServicePrice, CompanyName) VALUES ('Страховка нефти', 888.88, 'Газпром');
+INSERT INTO Service(ServiceName, ServicePrice, CompanyName) VALUES ('Страховка газа', 333.99, 'Компания Ильи');
+INSERT INTO Service(ServiceName, ServicePrice, CompanyName) VALUES ('Страховка нефти', 222.88, 'Компания Ильи');
+INSERT INTO Basket(AccountID, ServiceID) VALUES ((SELECT ID FROM Account WHERE AccountLogin = 'ilyasavin'), (SELECT ID FROM Service WHERE ServiceName = 'Страховка газа' AND CompanyName = 'Компания Ильи'));
+
+DELETE FROM Service;
 
 SELECT * FROM Account;
 SELECT * FROM BanList;

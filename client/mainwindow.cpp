@@ -44,6 +44,21 @@ MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* par
     connect(&chatWindow, &ChatWindow::endChatClicked, this, &MainWindow::slotEndChatClicked);
     connect(&chatWindow, &ChatWindow::sendMessageClicked, this, &MainWindow::slotSendMessageClicked);
 
+
+    connect(&brokerMainWindow, &BrokerMainWindow::companyButtonClicked, this, &MainWindow::slotCompanyButtonClicked);
+    connect(&brokerMainWindow, &BrokerMainWindow::companyAddButtonLastClicked, this, [=]()
+                                                                                     {
+                                                                                         socket.sendToServer("ADC", brokerMainWindow.getCompany());
+                                                                                     });
+    connect(&brokerMainWindow, &BrokerMainWindow::companyDeleteButtonClicked, this, [=]()
+                                                                                    {
+                                                                                        socket.sendToServer("DLC", brokerMainWindow.getCompany());
+                                                                                    });
+    connect(&brokerMainWindow, &BrokerMainWindow::companyChangeButtonLastClicked, this, [=]()
+                                                                                    {
+                                                                                        socket.sendToServer("CHC", brokerMainWindow.getCompany());
+                                                                                    });
+
     connect(&socket, &ClientEntity::readyRead, this, &MainWindow::slotReadyRead);
 
     ui -> loading -> close();
@@ -89,7 +104,8 @@ void MainWindow::handleResult(const QString& command)
         }
         else if (role == "BROKER")
         {
-
+            authWindow.close();
+            brokerMainWindow.show();
         }
     }
     else if (command == "FAU")
@@ -115,7 +131,7 @@ void MainWindow::handleResult(const QString& command)
         ui -> consultationButton -> setEnabled(true);
         QMessageBox::information(nullptr, "Информация", "Вы были удалены из очереди сотрудником", QMessageBox::Ok);
     }
-    else if (command == "CRC")
+    else if (command == "CRC" && (role == "USER" || role == "CONSULTANT"))
     {
         char login[32], companion[32];
         std::string str = socket.getData().toStdString();
@@ -128,7 +144,7 @@ void MainWindow::handleResult(const QString& command)
             this -> close();
         }
     }
-    else if (command == "CLC")
+    else if (command == "CLC" && (role == "USER" || role == "CONSULTANT"))
     {
         char login[32], companion[32];
         std::string str = socket.getData().toStdString();
@@ -153,7 +169,7 @@ void MainWindow::handleResult(const QString& command)
             }
         }
     }
-    else if (command == "MSD")
+    else if (command == "MSD" && (role == "USER" || role == "CONSULTANT"))
     {
         char login[32], message[4096];
         std::string str = socket.getData().toStdString();
@@ -163,6 +179,44 @@ void MainWindow::handleResult(const QString& command)
         {
             chatWindow.renderMessage("RECIEVER", message);
         }
+    }
+    else if (command == "GTC" && role == "BROKER")
+    {
+        char company[32];
+        std::string str = socket.getData().toStdString();
+
+        while (str != "")
+        {
+            getFields(str, 2, company);
+            brokerMainWindow.addCompanyLine(company);
+        }
+    }
+    else if (command == "SAC" && role == "BROKER")
+    {
+        brokerMainWindow.clearCompanies();
+        socket.sendToServer("GTC", "");
+    }
+    else if (command == "FAC" && role == "BROKER")
+    {
+        QMessageBox::information(nullptr, "Информация", "Компания уже существует", QMessageBox::Ok);
+    }
+    else if (command == "SDC" && role == "BROKER")
+    {
+        brokerMainWindow.clearCompanies();
+        socket.sendToServer("GTC", "");
+    }
+    else if (command == "FDC" && role == "BROKER")
+    {
+        QMessageBox::information(nullptr, "Информация", "Ошибка, эта компания уже удалена другим брокером", QMessageBox::Ok);
+    }
+    else if (command == "SCC" && role == "BROKER")
+    {
+        brokerMainWindow.clearCompanies();
+        socket.sendToServer("GTC", "");
+    }
+    else if (command == "FCC" && role == "BROKER")
+    {
+        QMessageBox::information(nullptr, "Информация", "Компания уже существует", QMessageBox::Ok);
     }
 }
 
@@ -243,4 +297,9 @@ void MainWindow::slotReadyRead()
 {
     QString command = socket.getCommand();
     handleResult(command);
+}
+
+void MainWindow::slotCompanyButtonClicked()
+{
+    socket.sendToServer("GTC", "");
 }

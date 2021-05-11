@@ -15,10 +15,10 @@ void ClientEntity::sendToServer(const QString& command, const QString& string)
     tcpSocket -> write(command.toStdString().c_str(), 4);
 
     char sizeStr[4096];
-    itoa(string.size() + 1, sizeStr, 10);
+    itoa(strlen(string.toStdString().c_str()) + 1, sizeStr, 10);
     tcpSocket -> write(sizeStr, 4096);
 
-    tcpSocket -> write(string.toStdString().c_str(), string.size() + 1);
+    tcpSocket -> write(string.toStdString().c_str(), strlen(string.toStdString().c_str()) + 1);
     tcpSocket -> waitForBytesWritten();
 }
 

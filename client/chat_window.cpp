@@ -12,7 +12,7 @@ ChatWindow::ChatWindow(QWidget *parent) : QWidget(parent), ui(new Ui::ChatWindow
                                                                   emit sendMessageClicked();
                                                                 });
 
-    connect(ui -> endChatButton,  &QPushButton::clicked, this, [=]() { ui -> chatView ->clear(); emit endChatClicked(); });
+    connect(ui -> endChatButton,  &QPushButton::clicked, this, [=]() { clearChat(); emit endChatClicked(); });
 }
 
 ChatWindow::~ChatWindow()
@@ -23,6 +23,7 @@ ChatWindow::~ChatWindow()
 void ChatWindow::clearChat()
 {
     ui -> chatView -> clear();
+    ui->messageLineEdit->clear();
 }
 
 void ChatWindow::renderMessage(const QString& role, const QString& message)
