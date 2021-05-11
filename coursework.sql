@@ -28,21 +28,43 @@ CREATE TABLE IF NOT EXISTS Company
 
 CREATE TABLE IF NOT EXISTS Service
 (
-	ID INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
     ServiceName VARCHAR(50) CONSTRAINT ch_sname CHECK (ServiceName REGEXP '^[[:alnum:] "]{6,32}$'),
     ServicePrice DOUBLE(8, 2) NOT NULL,
     CompanyName VARCHAR(50),
-    CONSTRAINT fkey_company FOREIGN KEY (CompanyName) REFERENCES Company(CompanyName) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT fkey_company FOREIGN KEY (CompanyName) REFERENCES Company(CompanyName) ON DELETE CASCADE ON UPDATE CASCADE,
+    PRIMARY KEY(ServiceName, CompanyName)
 );
 
 CREATE TABLE IF NOT EXISTS Basket
 (
-	ID INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
     AccountID INT,
-    ServiceID INT,
+    ServiceName VARCHAR(50),
     CONSTRAINT fkey_acc FOREIGN KEY(AccountID) REFERENCES Account(ID) ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT fkey_service FOREIGN KEY(ServiceID) REFERENCES Service(ID) ON DELETE CASCADE ON UPDATE CASCADE
+    PRIMARY KEY (AccountID, ServiceName)
 );
+
+CREATE TABLE IF NOT EXISTS PriceHistory 
+(
+	ServiceName VARCHAR(50),
+    CompanyName VARCHAR(50),
+    Price DOUBLE(8, 2) NOT NULL,
+    CONSTRAINT fkey_sprice FOREIGN KEY (ServiceName, CompanyName) REFERENCES Service (ServiceName, CompanyName) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+DELIMITER ##
+CREATE TRIGGER autoupdatePrice AFTER INSERT ON Service
+	FOR EACH ROW BEGIN
+		INSERT INTO PriceHistory(ServiceName, CompanyName, Price) VALUES (NEW.ServiceName, NEW.CompanyName, NEW.ServicePrice);
+	END##
+DELIMITER ;
+    
+DELIMITER $$
+CREATE TRIGGER autoupdatePrice_2 AFTER UPDATE ON Service
+	FOR EACH ROW BEGIN
+		INSERT INTO PriceHistory(ServiceName, CompanyName, Price) VALUES (NEW.ServiceName, NEW.CompanyName, NEW.ServicePrice);
+	END $$;
+DELIMITER ;
+
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -54,16 +76,19 @@ INSERT INTO Service(ServiceName, ServicePrice, CompanyName) VALUES ('Страх�
 INSERT INTO Service(ServiceName, ServicePrice, CompanyName) VALUES ('Страховка нефти', 888.88, 'Газпром');
 INSERT INTO Service(ServiceName, ServicePrice, CompanyName) VALUES ('Страховка газа', 333.99, 'Компания Ильи');
 INSERT INTO Service(ServiceName, ServicePrice, CompanyName) VALUES ('Страховка нефти', 222.88, 'Компания Ильи');
-INSERT INTO Basket(AccountID, ServiceID) VALUES ((SELECT ID FROM Account WHERE AccountLogin = 'ilyasavin'), (SELECT ID FROM Service WHERE ServiceName = 'Страховка газа' AND CompanyName = 'Компания Ильи'));
-
-DELETE FROM Service;
+INSERT INTO Basket(AccountID, ServiceName) VALUES ((SELECT ID FROM Account WHERE AccountLogin = 'ilyasavin'), 'Страховка газа');
 
 SELECT * FROM Account;
 SELECT * FROM BanList;
 SELECT * FROM Company;
 SELECT * FROM Service;
 SELECT * FROM Basket;
+SELECT * FROM PriceHistory;
+SHOW TRIGGERS;
 
+DROP TRIGGER IF EXISTS autoupdatePrice_2;
+DROP TRIGGER IF EXISTS autoupdatePrice;
+DROP TABLE IF EXISTS PriceHistory;
 DROP TABLE IF EXISTS Basket;
 DROP TABLE IF EXISTS Service;
 DROP TABLE IF EXISTS Company;

@@ -1,6 +1,7 @@
 #include "header/winsock_tcp_server.h"
 #include "header/mysql_api.h"
 #include "header/mysql_api_exception.h"
+#include <cmath>
 
 extern MySqlAPI database;
 
@@ -27,6 +28,8 @@ void getServicePrice(TcpServer::Client& socket, std::string& str);
 void clientOrderService(TcpServer::Client& socket, std::string& str);
 void brokerGetRequests(TcpServer::Client& socket);
 void cancelRequest(TcpServer::Client& socket, std::string& str);
+void brokerHandleRequest(TcpServer::Client& socket, std::string& str);
+
 
 void clientFunc(void* clientSocket)
 {
@@ -133,6 +136,10 @@ void clientFunc(void* clientSocket)
         else if (command == "CRE") // cancel request
         {
             cancelRequest(socket, str);
+        }
+        else if (command == "BHR") // broker handle request
+        {
+            brokerHandleRequest(socket, str);
         }
 
     } while(command != "EXT"); // exit
@@ -401,4 +408,58 @@ void cancelRequest(TcpServer::Client& socket, std::string& str)
     {
         i.second.sendData("SCR", str); // success cancel request
     }
+}
+
+void brokerHandleRequest(TcpServer::Client& socket, std::string& str)
+{
+    char client[32], service[32];
+    getFields(str, 3, client, service);
+
+    std::string avarages = database.getAllRows("SELECT AVG(Price), CompanyName FROM PriceHistory GROUP BY CompanyName ORDER BY CompanyName"); // извлекаем среднее значение и компанию связанную с этим средним
+
+
+    std::vector<double> avgs; // хранятся средние значения
+
+    int i = 0;
+    while (avarages != "")
+    {
+        char avprice[32], companyName[32];
+        getFields(avarages, 3, avprice, companyName);
+        avgs.push_back((i++, atof(avprice))); // добавляем среднее значение в массив
+    }
+
+    std::vector<double> risks(avgs.size()); // храняться риски
+
+    std::string amountChangesOfServicesInCompany = database.getAllRows("SELECT COUNT(*) FROM PriceHistory GROUP BY CompanyName ORDER BY CompanyName;"); // извлекаем количество записей цен чтобы знать N
+    std::vector<int> amountChangesOfService; // хрянится количество изменений цен каждой услуги, нужно для прохода внутреннего цикла и чтобы поделить на N
+
+    while (amountChangesOfServicesInCompany != "")
+    {
+        char amountOfChanges[32];
+        getFields(amountChangesOfServicesInCompany, 2, amountOfChanges);
+        amountChangesOfService.push_back(atoi(amountOfChanges)); // добавляем количество изменений в массив
+    }
+
+    std::string amountOfServicePrices = database.getAllRows("SELECT Price FROM PriceHistory ORDER BY CompanyName"); // извлекаем все цены, нужно для расчета риска
+    std::vector<double> servicePrices; // для расчета риска
+
+    while (amountOfServicePrices != "")
+    {
+        char price[32];
+        getFields(amountOfServicePrices, 2, price);
+        servicePrices.push_back(atof(price)); // добавляем цены в массив
+    }
+
+    int ii = 0;
+    for (std::size_t i = 0; i < avgs.size(); i++)
+    {
+        for (std::size_t j = 0; j < amountChangesOfService.size(); j++)
+        {
+            risks[i] += std::pow(servicePrices[ii++] - avgs[i], 2); // считаем (удельная эффективность - средняя удельная эффективность) в квадрате
+        }
+        risks[i] /= (amountChangesOfService[i] - 1) * 100; // делим на количество N - 1 умноженной на сотку, чтобы значения слишком высокие не были
+    }
+
+
+    socket.sendData("BHR", avarages);
 }

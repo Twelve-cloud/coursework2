@@ -24,17 +24,6 @@ MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* par
     connect(&regiWindow, &RegistrationWindow::registrationButtonClicked, this, &MainWindow::slotRegistrationClicked);
     connect(&authWindow, &AuthentificationWindow::signInButtonClicked, this, &MainWindow::slotSignInClicked);
 
-    connect(ui -> accountSettingsButton, &QPushButton::clicked, this, [=]()
-        {
-            if (ui -> accountListWidget -> isVisible())
-            {
-                ui -> accountListWidget -> close();
-            }
-            else
-            {
-                ui -> accountListWidget -> show();
-            }
-        });
     connect(ui -> consultationButton, &QPushButton::clicked, this, &MainWindow::slotConsultationClicked);
     connect(ui -> closeLoading,  &QPushButton::clicked, this, &MainWindow::slotCloseConsultationClicked);
     connect(ui -> orderButton, &QPushButton::clicked, this, &MainWindow::slotOrderClicked);
@@ -83,6 +72,10 @@ MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* par
                                                                                     {
                                                                                        socket.sendToServer("CRE", brokerMainWindow.getOrderLogin() + "~~~" + brokerMainWindow.getServiceName() + "~~~");
                                                                                     });
+    connect(&brokerMainWindow, &BrokerMainWindow::handleRequestButtonClicked, this, [=]()
+                                                                                    {
+                                                                                       socket.sendToServer("BHR", brokerMainWindow.getOrderLogin() + "~~~" + brokerMainWindow.getServiceName() + "~~~");
+                                                                                    });
 
     connect(&socket, &ClientEntity::readyRead, this, &MainWindow::slotReadyRead);
     connect(ui -> orderServiceButton, &QPushButton::clicked, this, &MainWindow::slotOrderServiceClicked);
@@ -94,7 +87,6 @@ MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* par
     ui -> loading -> setMovie(movie);
     movie -> start();
     ui -> closeLoading -> close();
-    ui -> accountListWidget -> close();
     ui -> serviceWidget -> close();
     ui -> orderServiceView -> close();
     ui -> serviceNameLabel -> close();
