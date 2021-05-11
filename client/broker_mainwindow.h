@@ -2,6 +2,7 @@
 #define BROKER_MAINWINDOW_H
 
 #include <QWidget>
+#include <QListWidgetItem>
 
 namespace Ui {
 class broker_mainwindow;
@@ -16,6 +17,7 @@ public:
     ~BrokerMainWindow();
 
     void addCompanyLine(const QString& company);
+    void addServiceLine(const QString& service);
     QString getCompany() const noexcept { return company; }
     void clearCompanies();
 
@@ -28,12 +30,15 @@ public slots:
     void slotCompanyDeleteButtonClicked();
     void slotCompanyChangeButtonClicked();
     void slotCompanyChangeButtonLastClicked();
+    void slotCompanyDoubleClick(QListWidgetItem* item);
+    void slotToolButtonClicked();
 
 signals:
     void companyButtonClicked();
     void companyAddButtonLastClicked();
     void companyDeleteButtonClicked();
     void companyChangeButtonLastClicked();
+    void companyDoubleClicked();
 
 private:
     QString serviceName;

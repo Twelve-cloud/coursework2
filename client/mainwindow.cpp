@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QMessageBox>
 #include <QMovie>
+#include <QString>
 
 void getFields(std::string& str, const std::size_t& argc, ...);
 
@@ -57,6 +58,10 @@ MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* par
     connect(&brokerMainWindow, &BrokerMainWindow::companyChangeButtonLastClicked, this, [=]()
                                                                                     {
                                                                                         socket.sendToServer("CHC", brokerMainWindow.getCompany());
+                                                                                    });
+    connect(&brokerMainWindow, &BrokerMainWindow::companyDoubleClicked, this, [=]()
+                                                                                    {
+                                                                                        socket.sendToServer("GBC", brokerMainWindow.getCompany());
                                                                                     });
 
     connect(&socket, &ClientEntity::readyRead, this, &MainWindow::slotReadyRead);
@@ -217,6 +222,17 @@ void MainWindow::handleResult(const QString& command)
     else if (command == "FCC" && role == "BROKER")
     {
         QMessageBox::information(nullptr, "Информация", "Компания уже существует", QMessageBox::Ok);
+    }
+    else if (command == "GBC" && role == "BROKER")
+    {
+        char service[32], price[32];
+        std::string str = socket.getData().toStdString();
+
+        while (str != "")
+        {
+            getFields(str, 3, service, price);
+            brokerMainWindow.addServiceLine(QString(service) + ", Price: " + price);
+        }
     }
 }
 

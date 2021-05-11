@@ -16,6 +16,7 @@ BrokerMainWindow::BrokerMainWindow(QWidget *parent) : QWidget(parent), ui(new Ui
     ui->addServiceButton->close();
     ui->deleteServiceButton->close();
     ui->changeServiceButton->close();
+    ui->toolButton -> close();
     ui->serviceWidget->close();
     ui->addCompanyButtonLast->close();
     ui->cancelAddCompanyButton->close();
@@ -32,6 +33,8 @@ BrokerMainWindow::BrokerMainWindow(QWidget *parent) : QWidget(parent), ui(new Ui
     connect(ui -> deleteCompanyButton, &QPushButton::clicked, this, &BrokerMainWindow::slotCompanyDeleteButtonClicked);
     connect(ui -> changeCompanyButton, &QPushButton::clicked, this, &BrokerMainWindow::slotCompanyChangeButtonClicked);
     connect(ui -> changeCompanyButtonLast, &QPushButton::clicked, this, &BrokerMainWindow::slotCompanyChangeButtonLastClicked);
+    connect(ui->companyWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(slotCompanyDoubleClick(QListWidgetItem*)));
+    connect(ui->toolButton, &QToolButton::clicked, this, &BrokerMainWindow::slotToolButtonClicked);
 }
 
 BrokerMainWindow::~BrokerMainWindow()
@@ -42,6 +45,11 @@ BrokerMainWindow::~BrokerMainWindow()
 void BrokerMainWindow::addCompanyLine(const QString &company)
 {
     ui -> companyWidget -> addItem(company);
+}
+
+void BrokerMainWindow::addServiceLine(const QString &service)
+{
+    ui -> serviceWidget -> addItem(service);
 }
 
 void BrokerMainWindow::clearCompanies()
@@ -75,6 +83,12 @@ void BrokerMainWindow::slotRequestsButtonClicked()
     ui->handleRequestButton->show();
     ui->cancelRequestButton->show();
     ui->handleWidget->show();
+    ui->addCompanyButtonLast->close();
+    ui->changeCompanyButtonLast->close();
+    ui->companyNameLabel->close();
+    ui->companyNameLineEdit->close();
+    ui->companyAddView -> close();
+    ui->cancelAddCompanyButton->close();
     ui -> companyButton -> setEnabled(true);
     ui -> requestsButton -> setEnabled(false);
 }
@@ -194,4 +208,42 @@ void BrokerMainWindow::slotCompanyChangeButtonLastClicked()
     company += "~~~" + new_company + "~~~";
 
     emit companyChangeButtonLastClicked();
+}
+
+void BrokerMainWindow::slotCompanyDoubleClick(QListWidgetItem* item)
+{
+    company = item -> text();
+
+    ui->addCompanyButton->close();
+    ui->deleteCompanyButton->close();
+    ui->changeCompanyButton->close();
+    ui->companyWidget->close();
+    ui->addCompanyButtonLast->close();
+    ui->changeCompanyButtonLast->close();
+    ui->companyNameLabel->close();
+    ui->companyNameLineEdit->close();
+    ui->companyAddView -> close();
+    ui->cancelAddCompanyButton->close();
+    ui->addServiceButton->show();
+    ui->deleteServiceButton->show();
+    ui->changeServiceButton->show();
+    ui->serviceWidget->show();
+    ui->toolButton -> show();
+
+    emit companyDoubleClicked();
+}
+
+void BrokerMainWindow::slotToolButtonClicked()
+{
+    ui->addCompanyButton->show();
+    ui->deleteCompanyButton->show();
+    ui->changeCompanyButton->show();
+    ui->companyWidget->show();
+    ui->addServiceButton->close();
+    ui->deleteServiceButton->close();
+    ui->changeServiceButton->close();
+    ui->serviceWidget->close();
+    ui->toolButton -> close();
+    ui->serviceWidget->clear();
+
 }

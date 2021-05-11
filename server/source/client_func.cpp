@@ -261,20 +261,55 @@ void changeCompany(TcpServer::Client& socket, std::string& str)
 
 void addService(TcpServer::Client& socket, std::string& str)
 {
-
+    try
+    {
+        database.execQuery("INSERT INTO Company(CompanyName) VALUES ('" + str + "');");
+        for (auto& i : socket.getSockets())
+        {
+            i.second.sendData("SAC", ""); // success add company
+        }
+    }
+    catch (const MySqlException::ExecutionQueryFailed& error)
+    {
+        socket.sendData("FAC", ""); // fail add company
+    }
 }
 
 void deleteService(TcpServer::Client& socket, std::string& str)
 {
-
+    try
+    {
+        database.execQuery("DELETE FROM Company WHERE ServiceName = '" + str + "' AND CompanyName = ';");
+        for (auto& i : socket.getSockets())
+        {
+            i.second.sendData("SDC", ""); // success delete company
+        }
+    }
+    catch (const MySqlException::ExecutionQueryFailed& error)
+    {
+        socket.sendData("FDC", ""); // fail delete company
+    }
 }
 
 void changeService(TcpServer::Client& socket, std::string& str)
 {
-
+    char old_company[32], new_company[32];
+    getFields(str, 3, old_company, new_company);
+    try
+    {
+        database.execQuery("UPDATE Company SET CompanyName = '" + std::string(new_company) + "' WHERE CompanyName = '" + old_company + "';");
+        for (auto& i : socket.getSockets())
+        {
+            i.second.sendData("SCC", ""); // success change company
+        }
+    }
+    catch (const MySqlException::ExecutionQueryFailed& error)
+    {
+        socket.sendData("FCC", ""); // fail change company
+    }
 }
 
 void getServicesByCompany(TcpServer::Client& socket, std::string& str)
 {
-
+    socket.sendData("GBC", database.getAllRows("SELECT ServiceName, ServicePrice FROM Service WHERE CompanyName = '" + str + "';"));
 }
