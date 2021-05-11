@@ -38,6 +38,9 @@ public slots:
     void slotSendMessageClicked();
     void slotReadyRead();
     void slotCompanyButtonClicked();
+    void slotServiceDoubleClick(QListWidgetItem* item);
+    void slotOrderServiceClicked();
+    void slotCancelServiceClicked();
 
 private:
     Ui::MainWindow *ui;
@@ -48,5 +51,7 @@ private:
     ChatWindow chatWindow;
     ClientEntity socket;
     QString role;
+    QString userService;
+    QString userServicePrice;
 };
 #endif // MAINWINDOW_H

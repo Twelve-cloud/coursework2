@@ -22,6 +22,9 @@ void addService(TcpServer::Client& socket, std::string& str);
 void deleteService(TcpServer::Client& socket, std::string& str);
 void changeService(TcpServer::Client& socket, std::string& str);
 void getServicesByCompany(TcpServer::Client& socket, std::string& str);
+void clientRequestedServices(TcpServer::Client& socket);
+void getServicePrice(TcpServer::Client& socket, std::string& str);
+void clientOrderService(TcpServer::Client& socket, std::string& str);
 
 void clientFunc(void* clientSocket)
 {
@@ -96,6 +99,18 @@ void clientFunc(void* clientSocket)
         else if (command == "GBC") // get by company
         {
             getServicesByCompany(socket, str);
+        }
+        else if (command == "CRS") // client requested company
+        {
+            clientRequestedServices(socket);
+        }
+        else if (command == "GSP") // get service price
+        {
+            getServicePrice(socket, str);
+        }
+        else if (command == "COS") // client orders service
+        {
+            clientOrderService(socket, str);
         }
 
     } while(command != "EXT"); // exit
@@ -312,4 +327,27 @@ void changeService(TcpServer::Client& socket, std::string& str)
 void getServicesByCompany(TcpServer::Client& socket, std::string& str)
 {
     socket.sendData("GBC", database.getAllRows("SELECT ServiceName, ServicePrice FROM Service WHERE CompanyName = '" + str + "';"));
+}
+
+void clientRequestedServices(TcpServer::Client& socket)
+{
+    socket.sendData("CRS", database.getAllRows("SELECT ServiceName FROM Service GROUP BY ServiceName;"));
+}
+
+void getServicePrice(TcpServer::Client& socket, std::string& str)
+{
+    socket.sendData("GSP", str + "~~~" + database.getAllRows("SELECT AVG(ServicePrice) FROM Service WHERE ServiceName = '" + str + "';"));
+}
+
+void clientOrderService(TcpServer::Client& socket, std::string& str)
+{
+    char client[32], service[32];
+    getFields(str, 3, client, service);
+
+    database.execQuery("INSERT INTO Basket(AccountID, ServiceID) VALUES ((SELECT ID FROM Account WHERE AccountLogin = '" + std::string(client) + "'), (SELECT ID FROM Service WHERE ServiceName = '" + service + "'));");
+
+    for (auto& i : socket.getSockets())
+    {
+        i.second.sendData("HCS", str); // handle client service
+    }
 }

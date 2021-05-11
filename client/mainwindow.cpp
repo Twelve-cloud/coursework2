@@ -65,6 +65,9 @@ MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* par
                                                                                     });
 
     connect(&socket, &ClientEntity::readyRead, this, &MainWindow::slotReadyRead);
+    connect(ui -> orderServiceButton, &QPushButton::clicked, this, &MainWindow::slotOrderServiceClicked);
+    connect(ui -> cancelServiceButton, &QPushButton::clicked, this, &MainWindow::slotCancelServiceClicked);
+    connect(ui->serviceWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(slotServiceDoubleClick(QListWidgetItem*)));
 
     ui -> loading -> close();
     QMovie* movie = new QMovie("loading.gif");
@@ -72,6 +75,14 @@ MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* par
     movie -> start();
     ui -> closeLoading -> close();
     ui -> accountListWidget -> close();
+    ui -> serviceWidget -> close();
+    ui -> orderServiceView -> close();
+    ui -> serviceNameLabel -> close();
+    ui -> serviceNameLabel -> setStyleSheet("color: black");
+    ui -> servicePriceLabel -> close();
+    ui -> servicePriceLabel -> setStyleSheet("color: black");
+    ui -> orderServiceButton -> close();
+    ui -> cancelServiceButton -> close();
     authWindow.show();
 }
 
@@ -165,6 +176,7 @@ void MainWindow::handleResult(const QString& command)
                 ui -> loading -> close();
                 ui -> closeLoading -> close();
                 ui -> consultationButton -> setEnabled(true);
+                ui -> orderButton -> setEnabled(true);
             }
             else if (role == "CONSULTANT")
             {
@@ -234,6 +246,27 @@ void MainWindow::handleResult(const QString& command)
             brokerMainWindow.addServiceLine(QString(service) + ", Price: " + price);
         }
     }
+    else if (command == "CRS" && role == "USER")
+    {
+        char service[32];
+        std::string str = socket.getData().toStdString();
+
+        while (str != "")
+        {
+            getFields(str, 2, service);
+            ui -> serviceWidget -> addItem(QString(service));
+        }
+    }
+    else if (command == "GSP" && role == "USER")
+    {
+        char service[32], price[32];
+        std::string str = socket.getData().toStdString();
+        getFields(str, 3, service, price);
+        userService = service;
+        userServicePrice = price;
+        ui -> serviceNameLabel -> setText("Услуга: " + QString(service));
+        ui -> servicePriceLabel -> setText("Средняя цена на рынке: " + QString(price));
+    }
 }
 
 void MainWindow::slotRegistrationClicked()
@@ -255,19 +288,26 @@ void MainWindow::slotSignInClicked()
 
 void MainWindow::slotOrderClicked()
 {
-    QMessageBox::information(nullptr, "Информация", "Ваша заявка принята. \nС вами свяжется консультант в ближайшее время", QMessageBox::Ok);
+    ui -> serviceWidget -> show();
+    ui -> serviceWidget -> clear();
+    ui -> orderButton -> setEnabled(false);
+    ui -> consultationButton -> setEnabled(true);
+    socket.sendToServer("CRS", "");
 }
 
 void MainWindow::slotConsultationClicked()
 {
-    socket.sendToServer("CNS", authWindow.getLogin());
+    ui -> serviceWidget -> close();
     ui -> consultationButton -> setEnabled(false);
+    ui -> orderButton -> setEnabled(false);
+    socket.sendToServer("CNS", authWindow.getLogin());
 }
 
 void MainWindow::slotCloseConsultationClicked()
 {
-    socket.sendToServer("CCN", authWindow.getLogin());
     ui -> consultationButton -> setEnabled(true);
+    ui -> orderButton -> setEnabled(true);
+    socket.sendToServer("CCN", authWindow.getLogin());
 }
 
 void MainWindow::slotCancelRequestClicked()
@@ -294,6 +334,7 @@ void MainWindow::slotEndChatClicked()
         ui -> loading -> close();
         ui -> closeLoading -> close();
         ui -> consultationButton -> setEnabled(true);
+        ui -> orderButton -> setEnabled(true);
     }
     else if (role == "CONSULTANT")
     {
@@ -318,4 +359,34 @@ void MainWindow::slotReadyRead()
 void MainWindow::slotCompanyButtonClicked()
 {
     socket.sendToServer("GTC", "");
+}
+
+void MainWindow::slotServiceDoubleClick(QListWidgetItem* item)
+{
+    ui -> orderServiceView -> show();
+    ui -> serviceNameLabel -> show();
+    ui -> servicePriceLabel -> show();
+    ui -> orderServiceButton -> show();
+    ui -> cancelServiceButton -> show();
+    socket.sendToServer("GSP", item -> text());
+}
+
+void MainWindow::slotOrderServiceClicked()
+{
+    socket.sendToServer("COS", authWindow.getLogin() + "~~~" + userService + "~~~");
+    ui -> orderServiceView -> close();
+    ui -> serviceNameLabel -> close();
+    ui -> servicePriceLabel -> close();
+    ui -> orderServiceButton -> close();
+    ui -> cancelServiceButton -> close();
+    QMessageBox::information(nullptr, "Информация", "Ваша заявка оставлена\nБрокер свяжется с вами,\nкак только будет подобрана наилучшая компания", QMessageBox::Ok);
+}
+
+void MainWindow::slotCancelServiceClicked()
+{
+    ui -> orderServiceView -> close();
+    ui -> serviceNameLabel -> close();
+    ui -> servicePriceLabel -> close();
+    ui -> orderServiceButton -> close();
+    ui -> cancelServiceButton -> close();
 }
