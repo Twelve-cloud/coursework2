@@ -63,6 +63,10 @@ MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* par
                                                                                     {
                                                                                         socket.sendToServer("GBC", brokerMainWindow.getCompany());
                                                                                     });
+    connect(&brokerMainWindow, &BrokerMainWindow::brokerHandleRequestClicked, this, [=]()
+                                                                                    {
+                                                                                        socket.sendToServer("BGR", "");
+                                                                                    });
 
     connect(&socket, &ClientEntity::readyRead, this, &MainWindow::slotReadyRead);
     connect(ui -> orderServiceButton, &QPushButton::clicked, this, &MainWindow::slotOrderServiceClicked);
@@ -266,6 +270,22 @@ void MainWindow::handleResult(const QString& command)
         userServicePrice = price;
         ui -> serviceNameLabel -> setText("Услуга: " + QString(service));
         ui -> servicePriceLabel -> setText("Средняя цена на рынке: " + QString(price));
+    }
+    else if (command == "HCS" && role == "BROKER")
+    {
+        brokerMainWindow.clearRequests();
+        socket.sendToServer("BGR", "");
+    }
+    else if (command == "BGR" && role == "BROKER")
+    {
+        char account[32], service[32];
+        std::string str = socket.getData().toStdString();
+
+        while (str != "")
+        {
+            getFields(str, 3, account, service);
+            brokerMainWindow.addRequestLine(QString(account) + "---" + QString(service));
+        }
     }
 }
 

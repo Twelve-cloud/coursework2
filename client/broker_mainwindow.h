@@ -18,8 +18,10 @@ public:
 
     void addCompanyLine(const QString& company);
     void addServiceLine(const QString& service);
+    void addRequestLine(const QString& request);
     QString getCompany() const noexcept { return company; }
     void clearCompanies();
+    void clearRequests();
 
 public slots:
     void slotCompanyButtonClicked();
@@ -39,6 +41,7 @@ signals:
     void companyDeleteButtonClicked();
     void companyChangeButtonLastClicked();
     void companyDoubleClicked();
+    void brokerHandleRequestClicked();
 
 private:
     QString serviceName;

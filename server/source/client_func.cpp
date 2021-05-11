@@ -25,6 +25,7 @@ void getServicesByCompany(TcpServer::Client& socket, std::string& str);
 void clientRequestedServices(TcpServer::Client& socket);
 void getServicePrice(TcpServer::Client& socket, std::string& str);
 void clientOrderService(TcpServer::Client& socket, std::string& str);
+void brokerGetRequests(TcpServer::Client& socket);
 
 void clientFunc(void* clientSocket)
 {
@@ -111,6 +112,10 @@ void clientFunc(void* clientSocket)
         else if (command == "COS") // client orders service
         {
             clientOrderService(socket, str);
+        }
+        else if (command == "BGR")
+        {
+            brokerGetRequests(socket);
         }
 
     } while(command != "EXT"); // exit
@@ -344,10 +349,15 @@ void clientOrderService(TcpServer::Client& socket, std::string& str)
     char client[32], service[32];
     getFields(str, 3, client, service);
 
-    database.execQuery("INSERT INTO Basket(AccountID, ServiceID) VALUES ((SELECT ID FROM Account WHERE AccountLogin = '" + std::string(client) + "'), (SELECT ID FROM Service WHERE ServiceName = '" + service + "'));");
+    database.execQuery("INSERT INTO Basket(AccountID, ServiceName) VALUES ((SELECT ID FROM Account WHERE AccountLogin = '" + std::string(client) + "'), '" + service + "');");
 
     for (auto& i : socket.getSockets())
     {
         i.second.sendData("HCS", str); // handle client service
     }
+}
+
+void brokerGetRequests(TcpServer::Client& socket)
+{
+    socket.sendData("BGR", database.getAllRows("SELECT AccountLogin, ServiceName FROM Account, Basket WHERE Account.ID = Basket.AccountID;"));
 }

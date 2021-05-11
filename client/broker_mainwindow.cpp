@@ -52,9 +52,19 @@ void BrokerMainWindow::addServiceLine(const QString &service)
     ui -> serviceWidget -> addItem(service);
 }
 
+void BrokerMainWindow::addRequestLine(const QString &request)
+{
+    ui -> handleWidget -> addItem(request);
+}
+
 void BrokerMainWindow::clearCompanies()
 {
     ui -> companyWidget -> clear();
+}
+
+void BrokerMainWindow::clearRequests()
+{
+    ui -> handleWidget -> clear();
 }
 
 void BrokerMainWindow::slotCompanyButtonClicked()
@@ -76,6 +86,7 @@ void BrokerMainWindow::slotCompanyButtonClicked()
 
 void BrokerMainWindow::slotRequestsButtonClicked()
 {
+    ui -> handleWidget -> clear();
     ui->addCompanyButton->close();
     ui->deleteCompanyButton->close();
     ui->changeCompanyButton->close();
@@ -91,6 +102,8 @@ void BrokerMainWindow::slotRequestsButtonClicked()
     ui->cancelAddCompanyButton->close();
     ui -> companyButton -> setEnabled(true);
     ui -> requestsButton -> setEnabled(false);
+
+    emit brokerHandleRequestClicked();
 }
 
 void BrokerMainWindow::slotCompanyAddButtonClicked()
