@@ -17,6 +17,7 @@ SOURCES += \
     client_entity.cpp \
     consultant_mainwindow.cpp \
     get_fields.cpp \
+    histogram.cpp \
     main.cpp \
     mainwindow.cpp \
     registration.cpp
@@ -27,6 +28,7 @@ HEADERS += \
     chat_window.h \
     client_entity.h \
     consultant_mainwindow.h \
+    histogram.h \
     mainwindow.h \
     registration.h
 
@@ -35,6 +37,7 @@ FORMS += \
     broker_mainwindow.ui \
     chat_window.ui \
     consultant_mainwindow.ui \
+    histogram.ui \
     mainwindow.ui \
     registration.ui
 

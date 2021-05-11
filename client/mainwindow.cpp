@@ -335,6 +335,14 @@ void MainWindow::handleResult(const QString& command)
     {
         QMessageBox::information(nullptr, "Информация", "Ваша заявка в обработке", QMessageBox::Ok);
     }
+    else if (command == "BHR" && role == "BROKER")
+    {
+        std::string tmp = socket.getData().toStdString();
+        std::string avgs = tmp.substr(0, tmp.find("Risks~~~"));
+        tmp.erase(0, tmp.find("Risks~~~")+  8);
+        std::string risks = tmp;
+
+    }
 }
 
 void MainWindow::slotRegistrationClicked()

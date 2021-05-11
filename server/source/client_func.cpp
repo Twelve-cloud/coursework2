@@ -416,7 +416,7 @@ void brokerHandleRequest(TcpServer::Client& socket, std::string& str)
     getFields(str, 3, client, service);
 
     std::string avarages = database.getAllRows("SELECT AVG(Price), CompanyName FROM PriceHistory GROUP BY CompanyName ORDER BY CompanyName"); // извлекаем среднее значение и компанию связанную с этим средним
-
+    std::string avgSend = avarages;
 
     std::vector<double> avgs; // хранятся средние значения
 
@@ -453,13 +453,20 @@ void brokerHandleRequest(TcpServer::Client& socket, std::string& str)
     int ii = 0;
     for (std::size_t i = 0; i < avgs.size(); i++)
     {
-        for (std::size_t j = 0; j < amountChangesOfService.size(); j++)
+        for (std::size_t j = 0; j < amountChangesOfService[i]; j++)
         {
             risks[i] += std::pow(servicePrices[ii++] - avgs[i], 2); // считаем (удельная эффективность - средняя удельная эффективность) в квадрате
         }
-        risks[i] /= (amountChangesOfService[i] - 1) * 100; // делим на количество N - 1 умноженной на сотку, чтобы значения слишком высокие не были
+        risks[i] /= (amountChangesOfService[i] - 1) * 1000; // делим на количество N - 1 умноженной на сотку, чтобы значения слишком высокие не были
     }
 
+    std::string risksStr;
+    for (std::size_t i = 0; i < risks.size(); i++)
+    {
+        std::string tmp;
+        tmp = std::to_string(risks[i]);
+        risksStr += tmp += "~~~";
+    }
 
-    socket.sendData("BHR", avarages);
+    socket.sendData("BHR", avgSend + "Risks~~~" + risksStr);
 }
