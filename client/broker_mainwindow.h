@@ -20,8 +20,12 @@ public:
     void addServiceLine(const QString& service);
     void addRequestLine(const QString& request);
     QString getCompany() const noexcept { return company; }
+    QString getServiceName() const noexcept { return serviceName; }
+    QString getServicePrice() const noexcept { return servicePrice; }
+    QString getService() const noexcept { return serviceName + servicePrice + company + "~~~"; }
     void clearCompanies();
     void clearRequests();
+    void clearServices();
 
 public slots:
     void slotCompanyButtonClicked();
@@ -34,6 +38,12 @@ public slots:
     void slotCompanyChangeButtonLastClicked();
     void slotCompanyDoubleClick(QListWidgetItem* item);
     void slotToolButtonClicked();
+    void slotAddServiceButtonClicked();
+    void slotChangeServiceButtonClicked();
+    void slotAddServiceButtonLastClicked();
+    void slotChangeServiceButtonLastClicked();
+    void slotDeleteServiceButtonClicked();
+    void slotCancelAddServiceButtonClicked();
 
 signals:
     void companyButtonClicked();
@@ -42,11 +52,13 @@ signals:
     void companyChangeButtonLastClicked();
     void companyDoubleClicked();
     void brokerHandleRequestClicked();
+    void serviceChangeButtonLastClicked();
+    void serviceAddButtonLastClicked();
+    void serviceDeleteButtonClicked();
 
 private:
     QString serviceName;
     QString servicePrice;
-    QString serviceCompany;
     QString company;
     Ui::broker_mainwindow *ui;
 };

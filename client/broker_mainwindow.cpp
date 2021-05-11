@@ -24,6 +24,14 @@ BrokerMainWindow::BrokerMainWindow(QWidget *parent) : QWidget(parent), ui(new Ui
     ui->companyNameLineEdit->close();
     ui->companyAddView -> close();
     ui->changeCompanyButtonLast->close();
+    ui->changeServiceButtonLast->close();
+    ui->addServiceButtonLast->close();
+    ui->serviceNameLabel->close();
+    ui->serviceNameLineEdit->close();
+    ui->priceServiceLabel->close();
+    ui->priceServiceLineEdit->close();
+    ui->changeServiceView->close();
+    ui->cancelAddServiceButton->close();
 
     connect(ui -> companyButton, &QPushButton::clicked, this, &BrokerMainWindow::slotCompanyButtonClicked);
     connect(ui -> requestsButton, &QPushButton::clicked, this, &BrokerMainWindow::slotRequestsButtonClicked);
@@ -35,6 +43,12 @@ BrokerMainWindow::BrokerMainWindow(QWidget *parent) : QWidget(parent), ui(new Ui
     connect(ui -> changeCompanyButtonLast, &QPushButton::clicked, this, &BrokerMainWindow::slotCompanyChangeButtonLastClicked);
     connect(ui->companyWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(slotCompanyDoubleClick(QListWidgetItem*)));
     connect(ui->toolButton, &QToolButton::clicked, this, &BrokerMainWindow::slotToolButtonClicked);
+    connect(ui->addServiceButton, &QPushButton::clicked, this, &BrokerMainWindow::slotAddServiceButtonClicked);
+    connect(ui->changeServiceButton, &QPushButton::clicked, this, &BrokerMainWindow::slotChangeServiceButtonClicked);
+    connect(ui->addServiceButtonLast, &QPushButton::clicked, this, &BrokerMainWindow::slotAddServiceButtonLastClicked);
+    connect(ui ->deleteServiceButton, &QPushButton::clicked, this, &BrokerMainWindow::slotDeleteServiceButtonClicked);
+    connect(ui-> changeServiceButtonLast, &QPushButton::clicked, this, &BrokerMainWindow::slotChangeServiceButtonLastClicked);
+    connect(ui->cancelAddServiceButton, &QPushButton::clicked, this, &BrokerMainWindow::slotCancelAddServiceButtonClicked);
 }
 
 BrokerMainWindow::~BrokerMainWindow()
@@ -65,6 +79,11 @@ void BrokerMainWindow::clearCompanies()
 void BrokerMainWindow::clearRequests()
 {
     ui -> handleWidget -> clear();
+}
+
+void BrokerMainWindow::clearServices()
+{
+    ui -> serviceWidget -> clear();
 }
 
 void BrokerMainWindow::slotCompanyButtonClicked()
@@ -156,12 +175,20 @@ void BrokerMainWindow::slotCompanyCancelAddClicked()
 
 void BrokerMainWindow::slotCompanyDeleteButtonClicked()
 {
+    bool isSelected = false;
     for (std::size_t i = 0; i < ui -> companyWidget -> count(); i++)
     {
         if (ui -> companyWidget -> item(i) -> isSelected())
         {
             company = ui -> companyWidget -> item(i) -> text();
+            isSelected = true;
         }
+    }
+
+    if (!isSelected)
+    {
+        QMessageBox::information(nullptr, "Информация", "Выберите компанию", QMessageBox::Ok);
+        return;
     }
 
     emit companyDeleteButtonClicked();
@@ -258,5 +285,187 @@ void BrokerMainWindow::slotToolButtonClicked()
     ui->serviceWidget->close();
     ui->toolButton -> close();
     ui->serviceWidget->clear();
+    ui->changeServiceButtonLast->close();
+    ui->addServiceButtonLast->close();
+    ui->serviceNameLabel->close();
+    ui->serviceNameLineEdit->close();
+    ui->priceServiceLabel->close();
+    ui->priceServiceLineEdit->close();
+    ui->changeServiceView->close();
+    ui->cancelAddServiceButton->close();
+}
 
+void BrokerMainWindow::slotAddServiceButtonClicked()
+{
+    ui->changeServiceButtonLast->close();
+    ui->addServiceButtonLast->show();
+    ui->serviceNameLabel->show();
+    ui->serviceNameLineEdit->show();
+    ui->priceServiceLabel->show();
+    ui->priceServiceLineEdit->show();
+    ui->changeServiceView->show();
+    ui->cancelAddServiceButton->show();
+    ui->serviceNameLineEdit->clear();
+    ui->priceServiceLineEdit->clear();
+}
+
+void BrokerMainWindow::slotChangeServiceButtonClicked()
+{
+    ui->addServiceButtonLast->close();
+    ui->changeServiceButtonLast->show();
+    ui->serviceNameLabel->show();
+    ui->serviceNameLineEdit->show();
+    ui->priceServiceLabel->show();
+    ui->priceServiceLineEdit->show();
+    ui->changeServiceView->show();
+    ui->cancelAddServiceButton->show();
+    ui->serviceNameLineEdit->clear();
+    ui->priceServiceLineEdit->clear();
+}
+
+void BrokerMainWindow::slotAddServiceButtonLastClicked()
+{
+    ui->changeServiceButtonLast->close();
+    ui->addServiceButtonLast->close();
+    ui->serviceNameLabel->close();
+    ui->serviceNameLineEdit->close();
+    ui->priceServiceLabel->close();
+    ui->priceServiceLineEdit->close();
+    ui->changeServiceView->close();
+    ui->cancelAddServiceButton->close();
+    serviceName = ui -> serviceNameLineEdit -> text();
+    servicePrice = ui -> priceServiceLineEdit -> text();
+
+    if ((serviceName.size() < 6 || serviceName.size() > 16) || (servicePrice.size() < 6 || servicePrice.size() > 16))
+    {
+        QMessageBox::information(nullptr, "Информация", "Длина полей должна быть от 6 до 16 символов", QMessageBox::Ok);
+        return;
+    }
+
+    for (const auto& ch : serviceName)
+    {
+        if (!ch.isDigit() && !ch.isLetter() && ch != ' ')
+        {
+            QMessageBox::information(nullptr, "Информация", "Неверно введены данные", QMessageBox::Ok);
+            return;
+        }
+    }
+
+    for (const auto& ch : servicePrice)
+    {
+        if (!ch.isDigit() && ch != '.')
+        {
+            QMessageBox::information(nullptr, "Информация", "Неверно введены данные о цене", QMessageBox::Ok);
+            return;
+        }
+    }
+
+    emit serviceAddButtonLastClicked();
+}
+
+void BrokerMainWindow::slotDeleteServiceButtonClicked()
+{
+    std::string serviceNameAndPrice;
+
+    bool isSelected = false;
+    for (std::size_t i = 0; i < ui -> serviceWidget -> count(); i++)
+    {
+        if (ui -> serviceWidget -> item(i) -> isSelected())
+        {
+            serviceNameAndPrice = ui -> serviceWidget -> item(i) -> text().toStdString();
+            isSelected = true;
+        }
+    }
+
+    if (!isSelected)
+    {
+        QMessageBox::information(nullptr, "Информация", "Выберите услугу", QMessageBox::Ok);
+        return;
+    }
+
+    serviceName = serviceNameAndPrice.substr(0, serviceNameAndPrice.find(',')).c_str();
+    serviceNameAndPrice.erase(0, serviceNameAndPrice.find(':') + 2);
+    servicePrice = serviceNameAndPrice.c_str();
+
+    emit serviceDeleteButtonClicked();
+}
+
+void BrokerMainWindow::slotChangeServiceButtonLastClicked()
+{
+    ui->changeServiceButtonLast->close();
+    ui->addServiceButtonLast->close();
+    ui->serviceNameLabel->close();
+    ui->serviceNameLineEdit->close();
+    ui->priceServiceLabel->close();
+    ui->priceServiceLineEdit->close();
+    ui->changeServiceView->close();
+    ui->cancelAddServiceButton->close();
+
+    QString new_service, new_price;
+    new_service = ui -> serviceNameLineEdit -> text();
+    new_price = ui -> priceServiceLineEdit -> text();
+
+    if ((new_service.size() < 6 || new_service.size() > 16) || (new_price.size() < 6 || new_price.size() > 16))
+    {
+        QMessageBox::information(nullptr, "Информация", "Длина полей должна быть от 6 до 16 символов", QMessageBox::Ok);
+        return;
+    }
+
+    for (const auto& ch : new_service)
+    {
+        if (!ch.isDigit() && !ch.isLetter() && ch != ' ')
+        {
+            QMessageBox::information(nullptr, "Информация", "Неверно введены данные о названии услуги", QMessageBox::Ok);
+            return;
+        }
+    }
+
+    for (const auto& ch : new_price)
+    {
+        if (!ch.isDigit() && ch != '.')
+        {
+            QMessageBox::information(nullptr, "Информация", "Неверно введены данные о цене", QMessageBox::Ok);
+            return;
+        }
+    }
+
+
+
+    bool isSelected = false;
+    std::string serviceNameAndPrice;
+    for (std::size_t i = 0; i < ui -> serviceWidget -> count(); i++)
+    {
+        if (ui -> serviceWidget -> item(i) -> isSelected())
+        {
+            serviceNameAndPrice = ui -> serviceWidget -> item(i) -> text().toStdString();
+            isSelected = true;
+        }
+    }
+
+    serviceName = serviceNameAndPrice.substr(0, serviceNameAndPrice.find(',')).c_str();
+    serviceNameAndPrice.erase(0, serviceNameAndPrice.find(':') + 2);
+    servicePrice = serviceNameAndPrice.c_str();
+
+    if (!isSelected)
+    {
+        QMessageBox::information(nullptr, "Информация", "Выберите компанию", QMessageBox::Ok);
+        return;
+    }
+
+    serviceName += "~~~" + new_service + "~~~";
+    servicePrice += "~~~" + new_price + "~~~";
+
+    emit serviceChangeButtonLastClicked();
+}
+
+void BrokerMainWindow::slotCancelAddServiceButtonClicked()
+{
+    ui->changeServiceButtonLast->close();
+    ui->addServiceButtonLast->close();
+    ui->serviceNameLabel->close();
+    ui->serviceNameLineEdit->close();
+    ui->priceServiceLabel->close();
+    ui->priceServiceLineEdit->close();
+    ui->changeServiceView->close();
+    ui->cancelAddServiceButton->close();
 }
