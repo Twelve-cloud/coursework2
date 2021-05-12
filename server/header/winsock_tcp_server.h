@@ -145,8 +145,8 @@ public:
             if (isWork == false)
                 _endthread();
 
-            Client clientSocket(*this, newClientSocket, clientSocketData);
-            clientSockets.insert(std::make_pair(inet_ntoa(clientSocketData.sin_addr), clientSocket)); // inet_ntoa преобразует in_addr к строковому виду
+            Client clientSocket(*this, newClientSocket, clientSocketData, amountOfClients);
+            clientSockets.insert(std::make_pair(amountOfClients++, clientSocket)); // inet_ntoa преобразует in_addr к строковому виду
 
             _beginthread(clientFunction, 0, (void*)&clientSocket);
 
@@ -168,11 +168,12 @@ public:
     {
     private:
         friend class TcpServer;
+        std::uint32_t ID;
         TcpServer& server;
         SOCKET socket = NULL;
         SOCKADDR_IN socketData;
     public:
-        Client(TcpServer& _server, SOCKET _socket, SOCKADDR_IN _socketData) : server(_server), socket(_socket), socketData(_socketData) {}
+        Client(TcpServer& _server, SOCKET _socket, SOCKADDR_IN _socketData, std::uint32_t amountOfClients) : server(_server), socket(_socket), socketData(_socketData), ID(amountOfClients) {}
 
         void sendData(const std::string& command, const std::string& data)
         {
@@ -231,15 +232,15 @@ public:
                 closesocket(socket);
                 server.clientSockets.erase(std::find_if(server.clientSockets.begin(),
                                                         server.clientSockets.end(),
-                                                        [&](std::pair<std::string, Client> element)
+                                                        [&](std::pair<std::uint32_t, Client> element)
                                                         {
-                                                            return element.first == inet_ntoa(socketData.sin_addr);
+                                                            return element.first == ID;
                                                         })
                                            );
             }
         }
 
-        std::multimap<std::string, Client> getSockets()
+        std::multimap<std::uint32_t, Client> getSockets()
         {
             return server.clientSockets;
         }
@@ -254,7 +255,8 @@ private:
     SOCKET serverSocket;
     SOCKADDR_IN socketData;
 
-    std::multimap<std::string, Client> clientSockets; // хранит по IP сокеты клиентов (поменять на map в конце)
+    std::multimap<std::uint32_t, Client> clientSockets; // хранит по IP сокеты клиентов (поменять на map в конце)
+    std::uint32_t amountOfClients = 0;
     void (*clientFunction)(void*);
 
     bool isWork;

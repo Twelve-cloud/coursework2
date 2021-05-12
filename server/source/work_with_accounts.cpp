@@ -1,5 +1,6 @@
 #include "header/mysql_api.h"
 #include "header/constants.h"
+#include "header/encrypt.h"
 
 extern MySqlAPI database;
 
@@ -70,6 +71,8 @@ void addAccount() try
 
     std::cout << "Enter login: "; std::getline(std::cin, login);
     std::cout << "Enter password: "; std::getline(std::cin, password);
+
+    ENCRYPTION_CYCLE(password, KEY);
 
     std::string existsLogin = database.select("SELECT AccountLogin FROM Account WHERE AccountLogin = '" + login + "';", true);
 
@@ -172,6 +175,8 @@ void changeAccountData() try
         std::cout << "Enter mobile number: "; std::getline(std::cin, mnumber);
         std::cout << "Enter email: "; std::getline(std::cin, email);
         std::cout << "Enter rolename: "; std::getline(std::cin, rolename);
+
+        ENCRYPTION_CYCLE(password, KEY);
 
         database.execQuery("UPDATE Account SET AccountLogin = '" + login + "', AccountPassword = '" + password + "', MobileNumber = '" + mnumber + "', Email = '" + email + "', Rolename = '" + rolename + "' WHERE AccountLogin = '" + old_login + "';");
     }

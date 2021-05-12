@@ -271,6 +271,8 @@ void BrokerMainWindow::slotCompanyDoubleClick(QListWidgetItem* item)
     ui->changeServiceButton->show();
     ui->serviceWidget->show();
     ui->toolButton -> show();
+    ui->requestsButton->setEnabled(false);
+    ui->companyButton->setEnabled(false);
 
     emit companyDoubleClicked();
 }
@@ -295,6 +297,8 @@ void BrokerMainWindow::slotToolButtonClicked()
     ui->priceServiceLineEdit->close();
     ui->changeServiceView->close();
     ui->cancelAddServiceButton->close();
+    ui->requestsButton->setEnabled(true);
+    ui->companyButton->setEnabled(true);
 }
 
 void BrokerMainWindow::slotAddServiceButtonClicked()

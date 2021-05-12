@@ -14,6 +14,7 @@ SOURCES += \
         source/work_with_accounts.cpp
 
 HEADERS += \
+    header/encrypt.h \
     header/mysql_api.h \
     header/mysql_api_exception.h \
     header/streamtable.h \

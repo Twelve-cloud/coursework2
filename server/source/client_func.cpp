@@ -1,5 +1,6 @@
 #include "header/winsock_tcp_server.h"
 #include "header/mysql_api.h"
+#include "header/encrypt.h"
 #include "header/mysql_api_exception.h"
 #include <cmath>
 
@@ -150,8 +151,10 @@ void clientFunc(void* clientSocket)
 void registration(TcpServer::Client& socket, std::string& str)
 {
     try {
-        char password[36], login[36];
-        getFields(str, 3, login, password);
+        char pass[36], login[36];
+        getFields(str, 3, login, pass);
+        std::string password = pass;
+        ENCRYPTION_CYCLE(password, KEY);
         database.execQuery("INSERT INTO Account(AccountLogin, AccountPassword) VALUES ('" + std::string(login) + "', '" + std::string(password) + "');");
         socket.sendData("SRG", ""); // sucess registration
     }
@@ -164,8 +167,10 @@ void registration(TcpServer::Client& socket, std::string& str)
 void autherization(TcpServer::Client& socket, std::string& str)
 {
     try {
-        char password[36], login[36];
-        getFields(str, 3, login, password);
+        char pass[36], login[36];
+        getFields(str, 3, login, pass);
+        std::string password = pass;
+        ENCRYPTION_CYCLE(password, KEY);
         if (database.isExists("SELECT COUNT(*) FROM Account WHERE (AccountLogin = '" + std::string(login) + "' AND AccountPassword = '" + std::string(password) + "');"))
         {
             if (!database.isExists("SELECT COUNT(*) FROM BanList WHERE AccountID = (SELECT ID FROM Account WHERE AccountLogin = '" +  std::string(login) + "');"))
@@ -415,7 +420,7 @@ void brokerHandleRequest(TcpServer::Client& socket, std::string& str)
     char client[32], service[32];
     getFields(str, 3, client, service);
 
-    std::string avarages = database.getAllRows("SELECT AVG(Price), CompanyName FROM PriceHistory GROUP BY CompanyName ORDER BY CompanyName"); // извлекаем среднее значение и компанию связанную с этим средним
+    std::string avarages = database.getAllRows("SELECT AVG(Price), CompanyName FROM PriceHistory WHERE ServiceName = '" + std::string(service) + "' GROUP BY CompanyName ORDER BY CompanyName"); // извлекаем среднее значение и компанию связанную с этим средним
     std::string avgSend = avarages;
 
     std::vector<double> avgs; // хранятся средние значения
@@ -430,7 +435,7 @@ void brokerHandleRequest(TcpServer::Client& socket, std::string& str)
 
     std::vector<double> risks(avgs.size()); // храняться риски
 
-    std::string amountChangesOfServicesInCompany = database.getAllRows("SELECT COUNT(*) FROM PriceHistory GROUP BY CompanyName ORDER BY CompanyName;"); // извлекаем количество записей цен чтобы знать N
+    std::string amountChangesOfServicesInCompany = database.getAllRows("SELECT COUNT(*) FROM PriceHistory WHERE ServiceName = '" + std::string(service) + "' GROUP BY CompanyName ORDER BY CompanyName;"); // извлекаем количество записей цен чтобы знать N
     std::vector<int> amountChangesOfService; // хрянится количество изменений цен каждой услуги, нужно для прохода внутреннего цикла и чтобы поделить на N
 
     while (amountChangesOfServicesInCompany != "")
@@ -440,7 +445,7 @@ void brokerHandleRequest(TcpServer::Client& socket, std::string& str)
         amountChangesOfService.push_back(atoi(amountOfChanges)); // добавляем количество изменений в массив
     }
 
-    std::string amountOfServicePrices = database.getAllRows("SELECT Price FROM PriceHistory ORDER BY CompanyName"); // извлекаем все цены, нужно для расчета риска
+    std::string amountOfServicePrices = database.getAllRows("SELECT Price FROM PriceHistory WHERE ServiceName = '" + std::string(service) + "' ORDER BY CompanyName;"); // извлекаем все цены, нужно для расчета риска
     std::vector<double> servicePrices; // для расчета риска
 
     while (amountOfServicePrices != "")

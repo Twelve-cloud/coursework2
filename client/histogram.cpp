@@ -1,13 +1,14 @@
 #include "histogram.h"
 #include "ui_histogram.h"
+#include <string>
 
 void getFields(std::string& str, const std::size_t& argc, ...);
 
 Histogram::Histogram(QWidget *parent) : QMainWindow(parent), ui(new Ui::Histogram)
 {
     ui->setupUi(this);
+    connect(ui->okeyButton, &QPushButton::clicked, this, [=](){delete ui->layout->takeAt(0); QWidget::close();});
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
-
 }
 
 void Histogram::createHistogram(std::string avgs, std::string risks)
@@ -19,11 +20,11 @@ void Histogram::createHistogram(std::string avgs, std::string risks)
         getFields(risks, 2, risk[i]);
     }
 
-    QBarSet *fc = new QBarSet(company[0]);
-    QBarSet *sc = new QBarSet(company[1]);
-    QBarSet *tc= new QBarSet(company[2]);
-    QBarSet *foc = new QBarSet(company[3]);
-    QBarSet *fic = new QBarSet(company[4]);
+    QBarSet *fc = new QBarSet((std::string(company[0]) + ", средняя цена: " + std::string(avarage[0]).substr(0, 6)).c_str());
+    QBarSet *sc = new QBarSet((std::string(company[1]) + ", средняя цена: " + std::string(avarage[1]).substr(0, 6)).c_str());
+    QBarSet *tc= new QBarSet((std::string(company[2]) + ", средняя цена: " + std::string(avarage[2]).substr(0, 6)).c_str());
+    QBarSet *foc = new QBarSet((std::string(company[3]) + ", средняя цена: " + std::string(avarage[3]).substr(0, 6)).c_str());
+    QBarSet *fic = new QBarSet((std::string(company[4]) + ", средняя цена: " + std::string(avarage[4]).substr(0, 6)).c_str());
 
     *fc << atof(risk[0]);
     *sc << atof(risk[1]);
@@ -38,11 +39,12 @@ void Histogram::createHistogram(std::string avgs, std::string risks)
     series->append(foc);
     series->append(fic);
 
+
+
     QChart *chart = new QChart();
     chart->addSeries(series);
     chart->setTitle("Риск при выборе решения через среднее арифметическое по цене");
     chart->setAnimationOptions(QChart::SeriesAnimations);
-
 
     QValueAxis *axisY = new QValueAxis();
     axisY->setRange(0, 100);
@@ -56,6 +58,50 @@ void Histogram::createHistogram(std::string avgs, std::string risks)
     chartView->setRenderHint(QPainter::Antialiasing);
 
     ui ->layout ->addWidget(chartView);
+
+    std::vector<double> avg = {atof(avarage[0]), atof(avarage[1]), atof(avarage[2]), atof(avarage[3]), atof(avarage[4])};
+
+    std::map<double, double> avg_risk;
+
+    for (std::size_t i = 0; i < 5; i++)
+    {
+        avg_risk.insert(std::pair<double, double>(atof(avarage[i]), atof(risk[i])));
+    }
+
+    double avgOfGoodCompany = 0;
+    for (std::size_t i = 30; i < 100; i+=30)
+    {
+        bool isGood = false;
+        std::size_t j = 0;
+        for (const auto& k : avg_risk)
+        {
+            if (k.second < i)
+            {
+                avgOfGoodCompany = k.first;
+                isGood = true;
+                break;
+            }
+            j++;
+        }
+
+        if(isGood == true)
+        {
+            break;
+        }
+    }
+
+    std::size_t indexOfGoodCompany = -1;
+    for (int i = 0; i < 5; i++)
+    {
+        if (avgOfGoodCompany == avg[i])
+        {
+            indexOfGoodCompany = i;
+            break;
+        }
+
+    }
+
+    ui->chosenCompanyLabel->setText(QString("Выбранная компания для этой услуги: ") + QString(company[indexOfGoodCompany]));
 }
 
 Histogram::~Histogram()
