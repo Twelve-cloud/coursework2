@@ -40,7 +40,6 @@ void clientFunc(void* clientSocket)
     do
     {
         socket.recvData(command, str);
-        std::cout << str << std::endl;
 
         if (command == "REG") // registration
         {
