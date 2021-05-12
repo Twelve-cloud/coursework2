@@ -2,6 +2,8 @@ QT       += core gui network charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+win32: RC_ICONS += appicon\\Icon.ico
+
 DESTDIR += "C:\\Users\\twelv\\Dropbox\\coursework3\\client"
 
 CONFIG += c++17

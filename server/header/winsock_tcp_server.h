@@ -13,11 +13,11 @@
 #include <string>
 #include <map>
 
-extern StreamTable serverConfigTable;
+//extern StreamTable serverConfigTable;
 
 class TcpServer
 {
-private:
+
     void winsockInitialization()
     {
         if (WSAStartup(MAKEWORD(2, 2), &initializationParams) != 0) // version 2.2
