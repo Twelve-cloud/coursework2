@@ -7,6 +7,7 @@
 #include "broker_mainwindow.h"
 #include "registration.h"
 #include "client_entity.h"
+#include "histogram.h"
 #include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
@@ -48,6 +49,7 @@ private:
     RegistrationWindow regiWindow;
     ConsultantMainWindow consultantMainWindow;
     BrokerMainWindow brokerMainWindow;
+    Histogram histogram;
     ChatWindow chatWindow;
     ClientEntity socket;
     QString role;

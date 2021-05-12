@@ -342,6 +342,8 @@ void MainWindow::handleResult(const QString& command)
         tmp.erase(0, tmp.find("Risks~~~")+  8);
         std::string risks = tmp;
 
+        histogram.createHistogram(avgs, risks);
+        histogram.show();
     }
 }
 
