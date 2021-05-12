@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
 
-    QString filename = (app.applicationDirPath() + "\\style.css");
+    QString filename = (":/style.css");
     if (!QFile::exists(filename))
     {
         qFatal("Can't loading styles.");

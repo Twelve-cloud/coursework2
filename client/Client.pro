@@ -4,7 +4,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 win32: RC_ICONS += appicon\\Icon.ico
 
-DESTDIR += "C:\\Users\\twelv\\Dropbox\\coursework3\\client"
+TARGET = ReliableBroker
 
 CONFIG += c++17
 
@@ -48,5 +48,5 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-DISTFILES += \
-    style.css
+RESOURCES += \
+    css_style.qrc
