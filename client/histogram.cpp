@@ -69,7 +69,7 @@ void Histogram::createHistogram(std::string avgs, std::string risks)
     }
 
     double avgOfGoodCompany = 0;
-    for (std::size_t i = 30; i < 100; i+=30)
+    for (std::size_t i = 20; i <= 100; i+=20)
     {
         bool isGood = false;
         std::size_t j = 0;

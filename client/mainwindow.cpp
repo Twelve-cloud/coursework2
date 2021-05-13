@@ -161,7 +161,7 @@ void MainWindow::handleResult(const QString& command)
     }
     else if (command == "CRC" && (role == "USER" || role == "CONSULTANT"))
     {
-        char login[32], companion[32];
+        char login[128], companion[128];
         std::string str = socket.getData().toStdString();
         getFields(str, 3, login, companion);
 
@@ -174,7 +174,7 @@ void MainWindow::handleResult(const QString& command)
     }
     else if (command == "CLC" && (role == "USER" || role == "CONSULTANT"))
     {
-        char login[32], companion[32];
+        char login[128], companion[128];
         std::string str = socket.getData().toStdString();
         getFields(str, 3, login, companion);
 
@@ -200,7 +200,7 @@ void MainWindow::handleResult(const QString& command)
     }
     else if (command == "MSD" && (role == "USER" || role == "CONSULTANT"))
     {
-        char login[32], message[4096];
+        char login[128], message[4096];
         std::string str = socket.getData().toStdString();
         getFields(str, 3, login, message);
 
@@ -211,7 +211,7 @@ void MainWindow::handleResult(const QString& command)
     }
     else if (command == "GTC" && role == "BROKER")
     {
-        char company[32];
+        char company[128];
         std::string str = socket.getData().toStdString();
 
         while (str != "")
@@ -249,7 +249,7 @@ void MainWindow::handleResult(const QString& command)
     }
     else if (command == "GBC" && role == "BROKER")
     {
-        char service[32], price[32];
+        char service[128], price[128];
         std::string str = socket.getData().toStdString();
 
         while (str != "")
@@ -260,7 +260,7 @@ void MainWindow::handleResult(const QString& command)
     }
     else if (command == "CRS" && role == "USER")
     {
-        char service[32];
+        char service[128];
         std::string str = socket.getData().toStdString();
 
         while (str != "")
@@ -271,7 +271,7 @@ void MainWindow::handleResult(const QString& command)
     }
     else if (command == "GSP" && role == "USER")
     {
-        char service[32], price[32];
+        char service[128], price[128];
         std::string str = socket.getData().toStdString();
         getFields(str, 3, service, price);
         userService = service;
@@ -286,7 +286,7 @@ void MainWindow::handleResult(const QString& command)
     }
     else if (command == "BGR" && role == "BROKER")
     {
-        char account[32], service[32];
+        char account[128], service[128];
         std::string str = socket.getData().toStdString();
 
         while (str != "")

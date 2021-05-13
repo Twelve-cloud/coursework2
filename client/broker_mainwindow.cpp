@@ -342,9 +342,9 @@ void BrokerMainWindow::slotAddServiceButtonLastClicked()
     serviceName = ui -> serviceNameLineEdit -> text();
     servicePrice = ui -> priceServiceLineEdit -> text();
 
-    if ((serviceName.size() < 6 || serviceName.size() > 16) || (servicePrice.size() < 6 || servicePrice.size() > 16))
+    if ((serviceName.size() < 6 || serviceName.size() > 32) || (servicePrice.size() < 6 || servicePrice.size() > 32))
     {
-        QMessageBox::information(nullptr, "Информация", "Длина полей должна быть от 6 до 16 символов", QMessageBox::Ok);
+        QMessageBox::information(nullptr, "Информация", "Длина полей должна быть от 6 до 32 символов", QMessageBox::Ok);
         return;
     }
 
@@ -411,9 +411,9 @@ void BrokerMainWindow::slotChangeServiceButtonLastClicked()
     new_service = ui -> serviceNameLineEdit -> text();
     new_price = ui -> priceServiceLineEdit -> text();
 
-    if ((new_service.size() < 6 || new_service.size() > 16) || (new_price.size() < 6 || new_price.size() > 16))
+    if ((new_service.size() < 6 || new_service.size() > 32) || (new_price.size() < 6 || new_price.size() > 32))
     {
-        QMessageBox::information(nullptr, "Информация", "Длина полей должна быть от 6 до 16 символов", QMessageBox::Ok);
+        QMessageBox::information(nullptr, "Информация", "Длина полей должна быть от 6 до 32 символов", QMessageBox::Ok);
         return;
     }
 

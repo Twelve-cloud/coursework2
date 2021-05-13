@@ -40,6 +40,7 @@ void clientFunc(void* clientSocket)
     do
     {
         socket.recvData(command, str);
+        std::cout << str;
 
         if (command == "REG") // registration
         {
@@ -150,7 +151,7 @@ void clientFunc(void* clientSocket)
 void registration(TcpServer::Client& socket, std::string& str)
 {
     try {
-        char pass[36], login[36];
+        char pass[128], login[128];
         getFields(str, 3, login, pass);
         std::string password = pass;
         ENCRYPTION_CYCLE(password, KEY);
@@ -166,7 +167,7 @@ void registration(TcpServer::Client& socket, std::string& str)
 void autherization(TcpServer::Client& socket, std::string& str)
 {
     try {
-        char pass[36], login[36];
+        char pass[128], login[128];
         getFields(str, 3, login, pass);
         std::string password = pass;
         ENCRYPTION_CYCLE(password, KEY);
@@ -291,7 +292,7 @@ void deleteCompany(TcpServer::Client& socket, std::string& str)
 
 void changeCompany(TcpServer::Client& socket, std::string& str)
 {
-    char old_company[32], new_company[32];
+    char old_company[128], new_company[128];
     getFields(str, 3, old_company, new_company);
     try
     {
@@ -309,7 +310,7 @@ void changeCompany(TcpServer::Client& socket, std::string& str)
 
 void addService(TcpServer::Client& socket, std::string& str)
 {
-    char service[32], price[32], company[32];
+    char service[128], price[128], company[128];
     getFields(str, 4, service, price, company);
     try
     {
@@ -327,7 +328,7 @@ void addService(TcpServer::Client& socket, std::string& str)
 
 void deleteService(TcpServer::Client& socket, std::string& str)
 {
-    char service[32], price[32], company[32];
+    char service[128], price[128], company[128];
     getFields(str, 4, service, price, company);
     try
     {
@@ -345,7 +346,7 @@ void deleteService(TcpServer::Client& socket, std::string& str)
 
 void changeService(TcpServer::Client& socket, std::string& str)
 {
-    char old_service[32], old_price[32], new_service[32], new_price[32], company[32];
+    char old_service[128], old_price[128], new_service[128], new_price[128], company[128];
     getFields(str, 6, old_service, new_service, old_price, new_price, company);
     try
     {
@@ -380,7 +381,7 @@ void clientOrderService(TcpServer::Client& socket, std::string& str)
 {
     try
     {
-        char client[32], service[32];
+        char client[128], service[128];
         getFields(str, 3, client, service);
 
         database.execQuery("INSERT INTO Basket(AccountID, ServiceName) VALUES ((SELECT ID FROM Account WHERE AccountLogin = '" + std::string(client) + "'), '" + service + "');");
@@ -404,7 +405,7 @@ void brokerGetRequests(TcpServer::Client& socket)
 
 void cancelRequest(TcpServer::Client& socket, std::string& str)
 {
-    char client[32], service[32];
+    char client[128], service[128];
     getFields(str, 3, client, service);
     database.execQuery("DELETE FROM Basket WHERE AccountID = (SELECT ID FROM Account WHERE AccountLogin = '" + std::string(client) + "') AND ServiceName = '" + service + "';");
 
@@ -416,7 +417,7 @@ void cancelRequest(TcpServer::Client& socket, std::string& str)
 
 void brokerHandleRequest(TcpServer::Client& socket, std::string& str)
 {
-    char client[32], service[32];
+    char client[128], service[128];
     getFields(str, 3, client, service);
 
     std::string avarages = database.getAllRows("SELECT AVG(Price), CompanyName FROM PriceHistory WHERE ServiceName = '" + std::string(service) + "' GROUP BY CompanyName ORDER BY CompanyName"); // извлекаем среднее значение и компанию связанную с этим средним
@@ -427,7 +428,7 @@ void brokerHandleRequest(TcpServer::Client& socket, std::string& str)
     int i = 0;
     while (avarages != "")
     {
-        char avprice[32], companyName[32];
+        char avprice[128], companyName[128];
         getFields(avarages, 3, avprice, companyName);
         avgs.push_back((i++, atof(avprice))); // добавляем среднее значение в массив
     }
@@ -439,7 +440,7 @@ void brokerHandleRequest(TcpServer::Client& socket, std::string& str)
 
     while (amountChangesOfServicesInCompany != "")
     {
-        char amountOfChanges[32];
+        char amountOfChanges[128];
         getFields(amountChangesOfServicesInCompany, 2, amountOfChanges);
         amountChangesOfService.push_back(atoi(amountOfChanges)); // добавляем количество изменений в массив
     }
@@ -449,7 +450,7 @@ void brokerHandleRequest(TcpServer::Client& socket, std::string& str)
 
     while (amountOfServicePrices != "")
     {
-        char price[32];
+        char price[128];
         getFields(amountOfServicePrices, 2, price);
         servicePrices.push_back(atof(price)); // добавляем цены в массив
     }

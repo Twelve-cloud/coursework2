@@ -3,6 +3,8 @@ CONFIG += console c++17
 CONFIG -= app_bundle
 CONFIG -= qt
 
+DESTDIR += "C:\\Users\\twelv\\Dropbox\\coursework3\\server"
+
 LIBS += -lws2_32
 
 SOURCES += \
