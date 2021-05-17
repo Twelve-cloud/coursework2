@@ -1,6 +1,8 @@
 #include "histogram.h"
 #include "ui_histogram.h"
+#include "streamtable.h"
 #include <string>
+#include <fstream>
 
 void getFields(std::string& str, const std::size_t& argc, ...);
 
@@ -19,6 +21,22 @@ void Histogram::createHistogram(std::string avgs, std::string risks)
         getFields(avgs, 3, avarage[i], company[i]);
         getFields(risks, 2, risk[i]);
     }
+
+    std::ofstream fout("risk_avarage.txt");
+    StreamTable output(fout);
+    output.AddCol(40);
+    output.AddCol(40);
+    output.AddCol(40);
+    output.MakeBorderExt(true);
+    output.SetDelimRow(true, '-');
+    output.SetDelimCol(true, '|');
+
+    fout << "Avarages, Companies and Risks" << std::endl;
+    for(int i = 0; i < 5; i++)
+    {
+        fout << "Company: " << company[i] << ", " << "Avarage: " << avarage[i] << ", Risk: " << risk[i] << std::endl;
+    }
+
 
     QBarSet *fc = new QBarSet((std::string(company[0]) + ", средняя цена: " + std::string(avarage[0]).substr(0, 6)).c_str());
     QBarSet *sc = new QBarSet((std::string(company[1]) + ", средняя цена: " + std::string(avarage[1]).substr(0, 6)).c_str());

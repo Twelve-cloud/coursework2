@@ -76,6 +76,10 @@ MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* par
                                                                                     {
                                                                                        socket.sendToServer("BHR", brokerMainWindow.getOrderLogin() + "~~~" + brokerMainWindow.getServiceName() + "~~~");
                                                                                     });
+    connect(&brokerMainWindow, &BrokerMainWindow::handleRequestDoubleClicked, this, [=]()
+                                                                                    {
+                                                                                        socket.sendToServer("PLP", brokerMainWindow.getServiceName() + "~~~");
+                                                                                    });
 
     connect(&socket, &ClientEntity::readyRead, this, &MainWindow::slotReadyRead);
     connect(ui -> orderServiceButton, &QPushButton::clicked, this, &MainWindow::slotOrderServiceClicked);
@@ -83,7 +87,7 @@ MainWindow::MainWindow(const QString& strHost, const qint32& nPort, QWidget* par
     connect(ui->serviceWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(slotServiceDoubleClick(QListWidgetItem*)));
 
     ui -> loading -> close();
-    QMovie* movie = new QMovie("loading.gif");
+    QMovie* movie = new QMovie("C:\\Users\\twelv\\Dropbox\\coursework3\\client\\loading.gif");
     ui -> loading -> setMovie(movie);
     movie -> start();
     ui -> closeLoading -> close();
@@ -344,6 +348,12 @@ void MainWindow::handleResult(const QString& command)
 
         histogram.createHistogram(avgs, risks);
         histogram.show();
+    }
+    else if (command == "PLP" && role == "BROKER")
+    {
+        std::string avgs = socket.getData().toStdString();
+        linPlot.createPlot(avgs);
+        linPlot.show();
     }
 }
 

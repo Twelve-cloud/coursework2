@@ -7,6 +7,7 @@
 #include "broker_mainwindow.h"
 #include "registration.h"
 #include "client_entity.h"
+#include "linear_plot.h"
 #include "histogram.h"
 #include <QMainWindow>
 
@@ -50,6 +51,7 @@ private:
     ConsultantMainWindow consultantMainWindow;
     BrokerMainWindow brokerMainWindow;
     Histogram histogram;
+    LinearPlot linPlot;
     ChatWindow chatWindow;
     ClientEntity socket;
     QString role;

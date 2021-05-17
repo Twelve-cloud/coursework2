@@ -42,6 +42,7 @@ BrokerMainWindow::BrokerMainWindow(QWidget *parent) : QWidget(parent), ui(new Ui
     connect(ui -> changeCompanyButton, &QPushButton::clicked, this, &BrokerMainWindow::slotCompanyChangeButtonClicked);
     connect(ui -> changeCompanyButtonLast, &QPushButton::clicked, this, &BrokerMainWindow::slotCompanyChangeButtonLastClicked);
     connect(ui->companyWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(slotCompanyDoubleClick(QListWidgetItem*)));
+    connect(ui->handleWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(slotHandleDoubleClick(QListWidgetItem*)));
     connect(ui->toolButton, &QToolButton::clicked, this, &BrokerMainWindow::slotToolButtonClicked);
     connect(ui->addServiceButton, &QPushButton::clicked, this, &BrokerMainWindow::slotAddServiceButtonClicked);
     connect(ui->changeServiceButton, &QPushButton::clicked, this, &BrokerMainWindow::slotChangeServiceButtonClicked);
@@ -454,7 +455,7 @@ void BrokerMainWindow::slotChangeServiceButtonLastClicked()
 
     if (!isSelected)
     {
-        QMessageBox::information(nullptr, "Информация", "Выберите компанию", QMessageBox::Ok);
+        QMessageBox::information(nullptr, "Информация", "Выберите услугу", QMessageBox::Ok);
         return;
     }
 
@@ -528,4 +529,32 @@ void BrokerMainWindow::slotHandleRequestButtonClicked()
     serviceName = loginAndService.c_str();
 
     emit handleRequestButtonClicked();
+}
+
+
+void BrokerMainWindow::slotHandleDoubleClick(QListWidgetItem* item)
+{
+    std::string loginAndService;
+
+    bool isSelected = false;
+    for (std::size_t i = 0; i < ui -> handleWidget -> count(); i++)
+    {
+        if (ui -> handleWidget -> item(i) -> isSelected())
+        {
+            loginAndService = ui -> handleWidget -> item(i) -> text().toStdString();
+            isSelected = true;
+        }
+    }
+
+    if (!isSelected)
+    {
+        QMessageBox::information(nullptr, "Информация", "Выберите заявку", QMessageBox::Ok);
+        return;
+    }
+
+    orderLogin = loginAndService.substr(0, loginAndService.find('-')).c_str();
+    loginAndService.erase(0, loginAndService.find('-') + 3);
+    serviceName = loginAndService.c_str();
+
+    emit handleRequestDoubleClicked();
 }

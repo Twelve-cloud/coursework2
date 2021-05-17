@@ -20,6 +20,7 @@ SOURCES += \
     consultant_mainwindow.cpp \
     get_fields.cpp \
     histogram.cpp \
+    linear_plot.cpp \
     main.cpp \
     mainwindow.cpp \
     registration.cpp
@@ -31,8 +32,10 @@ HEADERS += \
     client_entity.h \
     consultant_mainwindow.h \
     histogram.h \
+    linear_plot.h \
     mainwindow.h \
-    registration.h
+    registration.h \
+    streamtable.h
 
 FORMS += \
     authentification.ui \
@@ -40,6 +43,7 @@ FORMS += \
     chat_window.ui \
     consultant_mainwindow.ui \
     histogram.ui \
+    linear_plot.ui \
     mainwindow.ui \
     registration.ui
 

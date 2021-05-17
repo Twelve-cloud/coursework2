@@ -30,6 +30,7 @@ void clientOrderService(TcpServer::Client& socket, std::string& str);
 void brokerGetRequests(TcpServer::Client& socket);
 void cancelRequest(TcpServer::Client& socket, std::string& str);
 void brokerHandleRequest(TcpServer::Client& socket, std::string& str);
+void printLinearPlot(TcpServer::Client& socket, std::string& str);
 
 
 void clientFunc(void* clientSocket)
@@ -40,7 +41,6 @@ void clientFunc(void* clientSocket)
     do
     {
         socket.recvData(command, str);
-        std::cout << str;
 
         if (command == "REG") // registration
         {
@@ -141,6 +141,10 @@ void clientFunc(void* clientSocket)
         else if (command == "BHR") // broker handle request
         {
             brokerHandleRequest(socket, str);
+        }
+        else if (command == "PLP") // print linear plot
+        {
+            printLinearPlot(socket, str);
         }
 
     } while(command != "EXT"); // exit
@@ -474,4 +478,25 @@ void brokerHandleRequest(TcpServer::Client& socket, std::string& str)
     }
 
     socket.sendData("BHR", avgSend + "Risks~~~" + risksStr);
+}
+
+void printLinearPlot(TcpServer::Client& socket, std::string& str)
+{
+    char service[128];
+    getFields(str, 2, service);
+
+    std::string avarages = database.getAllRows("SELECT ServicePrice, CompanyName FROM Service WHERE ServiceName = '" + std::string(service) + "'");
+    std::string avgSend = avarages;
+
+    std::vector<double> avgs; // хранятся средние значения
+
+    int i = 0;
+    while (avarages != "")
+    {
+        char avprice[128], companyName[128];
+        getFields(avarages, 3, avprice, companyName);
+        avgs.push_back((i++, atof(avprice))); // добавляем среднее значение в массив
+    }
+
+    socket.sendData("PLP", avgSend);
 }

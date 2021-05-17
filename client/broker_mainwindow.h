@@ -47,6 +47,7 @@ public slots:
     void slotCancelAddServiceButtonClicked();
     void slotCancelRequestButtonClicked();
     void slotHandleRequestButtonClicked();
+    void slotHandleDoubleClick(QListWidgetItem* item);
 
 signals:
     void companyButtonClicked();
@@ -60,6 +61,7 @@ signals:
     void serviceDeleteButtonClicked();
     void cancelRequestButtonClicked();
     void handleRequestButtonClicked();
+    void handleRequestDoubleClicked();
 
 private:
     QString serviceName;
